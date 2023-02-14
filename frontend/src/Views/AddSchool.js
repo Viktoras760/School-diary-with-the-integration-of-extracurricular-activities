@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import APIController from '../Controllers/APIController';
 import {Spinner, Button, Row, Col, Card, Form, Alert} from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function EditSchool() {
     const { http } = APIController();

@@ -1,5 +1,6 @@
 import { useState } from "react"
 import APIController from '../Controllers/APIController';
+import { useNavigate } from 'react-router-dom';
 
 import { Row, Col, Card, Form, Button, Spinner } from 'react-bootstrap';
 
@@ -10,10 +11,14 @@ export default function Login() {
 
     const [isLoading, setLoading] = useState(false);
 
+    const navigate = useNavigate();
+
     const submitForm = () => {
         setLoading(true);
         http.post('/auth/iat', { email: email, password: password }).then((res) => {
             setToken(res.data.user, res.data.access_token);
+            navigate('/dashboard');
+            window.location.reload(false);
         }).catch((error) => {
             if(error.response.data.error != null) {
                 alert(error.response.data.error);
@@ -25,9 +30,12 @@ export default function Login() {
                 ))
                 alert(all_errors.join("\n"));
             }
-            alert("Cannot login! Incorrect credentials!");
+            else{
+                alert("Cannot login! Incorrect credentials!");
+            }
         }).finally(() => {
             setLoading(false);
+            
         });
     }
 

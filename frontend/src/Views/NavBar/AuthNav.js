@@ -24,16 +24,18 @@ import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 
 function Auth() {
+    const navigate = useNavigate();
     const { token, logout } = APIController();
     const { http } = APIController();
     const [userdetail, setUserdetail] = useState("");
     const [schooldetail, setSchooldetail] = useState("");
-    const navigate = useNavigate();
     const [successMessage, setSuccessMessage] = useState(sessionStorage.getItem('post-success'));
     
     const logoutUser = () => {
         if (token !== undefined) {
             logout();
+            navigate('/login');
+            window.location.reload(false);
         }
     }
 
