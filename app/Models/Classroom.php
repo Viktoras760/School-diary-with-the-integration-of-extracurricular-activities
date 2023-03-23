@@ -19,7 +19,7 @@ class Classroom extends Model
         'Musical_equipment',
         'Chemistry_equipment',
         'Computers',
-        'fk_Floorid_Floor'
+        'fk_Schoolid_School'
     ];
 
     protected $hidden = [
@@ -32,8 +32,8 @@ class Classroom extends Model
         return $this->belongsToMany('App\Models\Lesson', 'fk_Classroomid_Classroom', 'id_Classroom');
     }
 
-    public function floor()
+    public function school()
     {
-        return $this->hasOne('App\Models\Floor', 'id_Floor', 'fk_Floorid_Floor');
+        return $this->hasOne('App\Models\School', 'id_School', 'fk_Schoolid_School');
     }
 }

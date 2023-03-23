@@ -22,9 +22,9 @@ class School extends Model
 
     public $timestamps=false;
 
-    public function floors()
+    public function classrooms()
     {
-        return $this->belongsToMany('App\Models\Floor', 'fk_Schoolid_School', 'fk_Floorid_Floor');
+        return $this->belongsToMany('App\Models\Classroom', 'fk_Schoolid_School', 'fk_Classroomid_Classroom');
     }
 
     public function users()
