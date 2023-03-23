@@ -18,7 +18,7 @@ import AddLesson from '../AddLesson';
 import Schedule from '../Schedule';
 import SchoolUsers from '../SchoolUsers';
 import APIController from '../../Controllers/APIController';
-import {Navbar, Nav, Container, Alert} from 'react-bootstrap';
+import {Navbar, Nav, Container} from 'react-bootstrap';
 import {LinkContainer} from 'react-router-bootstrap';
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
@@ -28,9 +28,8 @@ function Auth() {
     const { token, logout } = APIController();
     const { http } = APIController();
     const [userdetail, setUserdetail] = useState("");
-    const [schooldetail, setSchooldetail] = useState("");
     const [successMessage, setSuccessMessage] = useState(sessionStorage.getItem('post-success'));
-    
+
     const logoutUser = () => {
         if (token !== undefined) {
             logout();
@@ -66,7 +65,7 @@ function Auth() {
             <Navbar bg="dark" variant="dark" expand="lg">
                 <Container>
                     <LinkContainer to="/">
-                        <Navbar.Brand>Class rent</Navbar.Brand>
+                        <Navbar.Brand>Your diary</Navbar.Brand>
                     </LinkContainer>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
@@ -84,18 +83,18 @@ function Auth() {
                             <LinkContainer to="/lessons">
                                 <Nav.Link>My Lessons</Nav.Link>
                             </LinkContainer>
-                            {userdetail.Role == "System Administrator" ? <>
+                            {userdetail.Role === "System Administrator" ? <>
                             <LinkContainer to="/schools">
                                 <Nav.Link>Schools</Nav.Link>
                             </LinkContainer>
                             <LinkContainer to="/users">
                                 <Nav.Link>Users</Nav.Link>
                             </LinkContainer></> : ""}
-                            {userdetail.Role == "School Administrator" ? <>
+                            {userdetail.Role === "School Administrator" ? <>
                             <LinkContainer to="/school_users">
                                 <Nav.Link>School Users</Nav.Link>
                             </LinkContainer></> : ""}
-                            {userdetail.Role == "Teacher" ? <>
+                            {userdetail.Role === "Teacher" ? <>
                             <LinkContainer to="/schedule">
                                 <Nav.Link>Schedule</Nav.Link>
                             </LinkContainer></> : ""}
