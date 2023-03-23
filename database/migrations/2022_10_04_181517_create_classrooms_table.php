@@ -11,12 +11,13 @@ return new class extends Migration
         Schema::create('classroom', function (Blueprint $table) {
 
 		$table->integer('Number');
+        $table->integer('Floor_Number');
 		$table->integer('Pupil_capacity');
 		$table->enum('Musical_equipment',['Yra', 'Nėra'])->nullable();
 		$table->enum('Chemistry_equipment',['Yra', 'Nėra'])->nullable();
 		$table->enum('Computers',['Yra', 'Nėra'])->nullable();
 		$table->integer('id_Classroom',true);
-		$table->integer('fk_Floorid_Floor');
+		$table->integer('fk_Schoolid_School');
 
         });
     }
