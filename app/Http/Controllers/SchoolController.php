@@ -5,18 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\School;
 use App\Models\User;
-use App\Models\Floor;
-use Validator;
 use App\Http\Controllers\AuthController;
 
 class SchoolController extends Controller
 {
-
-    /*public function __construct()
+    public function __construct()
     {
-        $this->middleware('auth:api', ['except' => []]);
-    }*/
-    
+      $this->middleware('auth:api', ['except' => []]);
+    }
     function updateSchool($id, Request $request)
     {
 
@@ -54,10 +50,10 @@ class SchoolController extends Controller
             return response()->json(['error' => 'School not found'], 404);
         }
         $school->update([
-            'Name' => $request->Name,
-            'Adress' => $request->Adress,
-            'Pupil_amount' => $request->Pupil_amount,
-            'Teacher_amount' => $request->Teacher_amount
+            'name' => $request->name,
+            'address' => $request->address,
+            'pupilAmount' => $request->pupilAmount,
+            'teacherAmount' => $request->teacherAmount
         ]);
         return response()->json(['success' => 'School updated successfully']);
     }
@@ -114,18 +110,18 @@ class SchoolController extends Controller
                 'message' => 'No rights to do that',
             ], 401);
         }
-        $schools = \App\Models\School::where('Name', '=', $req->input('Name'))->get();
-        $address = \App\Models\School::where('Adress', '=', $req->input('Adress'))->get();
+        $schools = \App\Models\School::where('name', '=', $req->input('name'))->get();
+        $address = \App\Models\School::where('address', '=', $req->input('address'))->get();
         if(count($schools) > 0 || count($address) > 0)
         {
             return response()->json(['message' => 'School already exist'], 400);
         }
 
         $validator = Validator::make($req->all(), [
-            'Name' => 'required|string|max:255',
-            'Adress' => 'required|string|max:255',
-            'Pupil_amount' => 'required|integer|max:5000|min:0',
-            'Teacher_amount' => 'required|integer|max:1000|min:0',
+            'name' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'pupilAmount' => 'required|integer|max:5000|min:0',
+            'teacherAmount' => 'required|integer|max:1000|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -133,10 +129,10 @@ class SchoolController extends Controller
         }
 
         $school = new School;
-        $school->Name= $req->input('Name');
-        $school->Adress= $req->input('Adress');
-        $school->Pupil_amount= $req->input('Pupil_amount');
-        $school->Teacher_amount= $req->input('Teacher_amount');
+        $school->name= $req->input('name');
+        $school->address= $req->input('address');
+        $school->pupilAmount= $req->input('pupilAmount');
+        $school->teacherAmount= $req->input('teacherAmount');
         $school->save();
         return $school;
     }
@@ -153,21 +149,15 @@ class SchoolController extends Controller
         }
         $school = \App\Models\School::find($id);
         $user = \App\Models\User::where('user.fk_Schoolid_School','=',$id)->get();
-        $floor = \App\Models\Floor::where('floor.fk_Schoolid_School','=',$id)->get();
 
         if ($school == "") {
             return response()->json(['message' => 'School does not exist'], 404);
         }
-        else if (count($user) > 0 || count($floor) > 0)
+        else if (count($user) > 0)
         {
-            return response()->json(['message' => 'School has users or floor attached. Delete them first.'], 400);
+            return response()->json(['message' => 'School has users attached. Delete them first.'], 400);
         }
         $school->delete();
         return response()->json(['success' => 'School deleted']);
-    }
-
-    function test()
-    {
-        return response()->json(['success' => 'Test successeded444444']);
     }
 }

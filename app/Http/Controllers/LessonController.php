@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Lesson;
 use App\Models\User;
-use App\Models\Floor;
 use App\Models\School;
 use App\Models\Classroom;
 use Illuminate\Support\Carbon;
-use Validator;
 use App\Http\Controllers\AuthController;
 
 class LessonController extends Controller
@@ -19,10 +17,9 @@ class LessonController extends Controller
         $this->middleware('auth:api', ['except' => []]);
     }
 
-    function getLesson($idSchool, $idFloor, $idClassroom, $id)
+    function getLesson($idSchool, $idClassroom, $id)
     {
         $role = (new AuthController)->authRole();
-        $floor = \App\Models\Floor::find($idFloor);
         $school = \App\Models\School::find($idSchool);
         if (($role == 'School Administrator' || $role == 'Teacher' || $role == 'Pupil') && $school->id_School != auth()->user()->fk_Schoolid_School)
         {
@@ -32,24 +29,16 @@ class LessonController extends Controller
             ], 401);
         }
         $classroom = \App\Models\Classroom::find($idClassroom);
-        $schoolsFloor = \App\Models\Floor::where('fk_Schoolid_School', '=', $idSchool)->where('id_Floor', '=', $idFloor)->get();
-        $FloorsClassroom = \App\Models\Classroom::where('fk_Floorid_Floor', '=', $idFloor)->where('id_Classroom', '=', $idClassroom)->get();
+        $SchoolsClassroom = \App\Models\Classroom::where('fk_Schoolid_School', '=', $idSchool)->where('id_Classroom', '=', $idClassroom)->get();
         if(!$school) {
             return response()->json(['error' => 'School not found'], 404);
-        }
-        if(!$floor) {
-            return response()->json(['error' => 'Floor not found'], 404);
         }
         if(!$classroom) {
             return response()->json(['error' => 'Classroom not found'], 404);
         }
-        if (count($schoolsFloor) < 1)
+        if (count($SchoolsClassroom) < 1)
         {
-            return response()->json(['error' => 'Floor is in another school'], 404);
-        }
-        if (count($FloorsClassroom) < 1)
-        {
-            return response()->json(['error' => 'Classroom is on another floor'], 404);
+            return response()->json(['error' => 'Classroom was not found in selected school'], 404);
         }
 
 
@@ -71,7 +60,7 @@ class LessonController extends Controller
         return $lesson;
     }
 
-    function addLesson(Request $req, $idSchool, $idFloor, $idClassroom)
+    function addLesson(Request $req, $idSchool, $idClassroom)
     {
 
         $role = (new AuthController)->authRole();
@@ -82,7 +71,6 @@ class LessonController extends Controller
                 'message' => 'No rights to do that',
             ], 401);
         }
-        $floor = \App\Models\Floor::find($idFloor);
         $school = \App\Models\School::find($idSchool);
         if (($role == 'School Administrator' || $role == 'Teacher') && $school->id_School != auth()->user()->fk_Schoolid_School)
         {
@@ -92,25 +80,17 @@ class LessonController extends Controller
             ], 401);
         }
         $classroom = \App\Models\Classroom::find($idClassroom);
-        $schoolsFloor = \App\Models\Floor::where('fk_Schoolid_School', '=', $idSchool)->where('id_Floor', '=', $idFloor)->get();
-        $FloorsClassroom = \App\Models\Classroom::where('fk_Floorid_Floor', '=', $idFloor)->where('id_Classroom', '=', $idClassroom)->get();
+        $SchoolsClassroom = \App\Models\Classroom::where('fk_Schoolid_School', '=', $idSchool)->where('id_Classroom', '=', $idClassroom)->get();
         $lessons = \App\Models\Lesson::where('fk_Classroomid_Classroom', '=', $idClassroom)->get();
         if(!$school) {
             return response()->json(['error' => 'School not found'], 404);
         }
-        if(!$floor) {
-            return response()->json(['error' => 'Floor not found'], 404);
-        }
         if(!$classroom) {
             return response()->json(['error' => 'Classroom not found'], 404);
         }
-        if (count($schoolsFloor) < 1)
+        if (count($SchoolsClassroom) < 1)
         {
-            return response()->json(['error' => 'Floor is in another school'], 404);
-        }
-        if (count($FloorsClassroom) < 1)
-        {
-            return response()->json(['error' => 'Classroom is on another floor'], 404);
+            return response()->json(['error' => 'Classroom was not found in selected school'], 404);
         }
 
         if((new Carbon($req->input('Lessons_starting_time')))->gt(new Carbon($req->input('Lessons_ending_time'))))
@@ -123,7 +103,7 @@ class LessonController extends Controller
             {
                 //      12:00-12:45
                 //11:15-12:00
-                
+
                 if((new Carbon($req->input('Lessons_starting_time')))->eq(new Carbon($lessons[$i]->Lessons_starting_time)) || (new Carbon($req->input('Lessons_ending_time')))->eq(new Carbon($lessons[$i]->Lessons_ending_time)) || (new Carbon($req->input('Lessons_ending_time')))->eq(new Carbon($lessons[$i]->Lessons_starting_time)) || (new Carbon($req->input('Lessons_starting_time')))->eq(new Carbon($lessons[$i]->Lessons_ending_time)))
                 {
                     return response()->json(['error' => 'This time is already occupied by another lesson'], 404);
@@ -144,9 +124,9 @@ class LessonController extends Controller
         }
 
         $validator = Validator::make($req->all(), [
-            'Lessons_name' => 'required|string|max:255',
-            'Lower_grade_limit' => 'required|integer|max:12|min:0',
-            'Upper_grade_limit' => 'required|integer|max:12|min:0',
+            'lessonsName' => 'required|string|max:255',
+            'lowerGradeLimit' => 'required|integer|max:12|min:0',
+            'upperGradeLimit' => 'required|integer|max:12|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -154,22 +134,21 @@ class LessonController extends Controller
         }
 
         $lesson = new Lesson;
-        $lesson->Lessons_name= $req->input('Lessons_name');
-        $lesson->Lessons_starting_time= $req->input('Lessons_starting_time');
-        $lesson->Lessons_ending_time= $req->input('Lessons_ending_time');
-        $lesson->Lower_grade_limit= $req->input('Lower_grade_limit');
-        $lesson->Upper_grade_limit= $req->input('Upper_grade_limit');
+        $lesson->lessonsName= $req->input('lessonsName');
+        $lesson->lessonsStartingTime= $req->input('lessonsStartingTime');
+        $lesson->lessonsEndingTime= $req->input('lessonsEndingTime');
+        $lesson->lowerGradeLimit= $req->input('lowerGradeLimit');
+        $lesson->UpperGradeLimit= $req->input('upperGradeLimit');
         $lesson->fk_Classroomid_Classroom= $idClassroom;
-        $lesson->creator_id= auth()->user()->id_User;
+        $lesson->creatorId= auth()->user()->id_User;
         $lesson->save();
         return $lesson;
     }
 
-    function registerToLesson($idSchool, $idFloor, $idClassroom, $id)
+    function registerToLesson($idSchool, $idClassroom, $id)
     {
 
         $role = (new AuthController)->authRole();
-        $floor = \App\Models\Floor::find($idFloor);
         $school = \App\Models\School::find($idSchool);
         if (($role == 'School Administrator' || $role == 'Teacher' || $role == 'Pupil') && $school->id_School != auth()->user()->fk_Schoolid_School)
         {
@@ -179,34 +158,25 @@ class LessonController extends Controller
             ], 401);
         }
         $classroom = \App\Models\Classroom::find($idClassroom);
-        $schoolsFloor = \App\Models\Floor::where('fk_Schoolid_School', '=', $idSchool)->where('id_Floor', '=', $idFloor)->get();
-        $FloorsClassroom = \App\Models\Classroom::where('fk_Floorid_Floor', '=', $idFloor)->where('id_Classroom', '=', $idClassroom)->get();
+        $SchoolsClassroom = \App\Models\Classroom::where('fk_Schoolid_School', '=', $idSchool)->where('id_Classroom', '=', $idClassroom)->get();
         $lessons = \App\Models\Lesson::where('fk_Classroomid_Classroom', '=', $idClassroom)->get();
         if(!$school) {
             return response()->json(['error' => 'School not found'], 404);
         }
-        if(!$floor) {
-            return response()->json(['error' => 'Floor not found'], 404);
-        }
         if(!$classroom) {
             return response()->json(['error' => 'Classroom not found'], 404);
         }
-        if (count($schoolsFloor) < 1)
+        if (count($SchoolsClassroom) < 1)
         {
-            return response()->json(['error' => 'Floor is in another school'], 404);
+            return response()->json(['error' => 'Classroom was not found in selected school'], 404);
         }
-        if (count($FloorsClassroom) < 1)
-        {
-            return response()->json(['error' => 'Classroom is on another floor'], 404);
-        }
-        //
 
         $user = auth()->user();
         $lesson = \App\Models\Lesson::find($id);
         if(!$lesson) {
             return response()->json(['error' => 'Lesson not found'], 404);
         }
-        if ($role == 'Pupil' && auth()->user()->Grade < $lesson->Lower_grade_limit || $lesson->Upper_grade_limit < auth()->user()->Grade)
+        if ($role == 'Pupil' && auth()->user()->grade < $lesson->Lower_grade_limit || $lesson->Upper_grade_limit < auth()->user()->grade)
         {
             return response()->json([
                 'status' => 'error',
@@ -215,7 +185,7 @@ class LessonController extends Controller
         }
         $userlessons = auth()->user()->lessons()->get();
         //return response()->json(['error' => 'This lesson does not suit your grade', $userlessons]);
-        
+
         /*if ( $user->Grade < $lesson->Lower_grade_limit || $user->Grade > $lesson->Upper_grade_limit)
         {
             return response()->json(['error' => 'This lesson does not suit your grade']);
@@ -226,20 +196,20 @@ class LessonController extends Controller
 
             //      12:00-12:45
                 //11:15-12:00
-                
-            if((new Carbon($lesson->Lessons_starting_time))->eq(new Carbon($userlessons[$i]->Lessons_starting_time)) || (new Carbon($lesson->Lessons_ending_time))->eq(new Carbon($userlessons[$i]->Lessons_ending_time)) || (new Carbon($lesson->Lessons_ending_time))->eq(new Carbon($userlessons[$i]->Lessons_starting_time)) || (new Carbon($lesson->Lessons_starting_time))->eq(new Carbon($userlessons[$i]->Lessons_ending_time)))
+
+            if((new Carbon($lesson->lessonsStartingTime))->eq(new Carbon($userlessons[$i]->lessonsStartingTime)) || (new Carbon($lesson->LessonsEndingTime))->eq(new Carbon($userlessons[$i]->LessonsEndingTime)) || (new Carbon($lesson->LessonsEndingTime))->eq(new Carbon($userlessons[$i]->lessonsStartingTime)) || (new Carbon($lesson->lessonsStartingTime))->eq(new Carbon($userlessons[$i]->LessonsEndingTime)))
             {
                 return response()->json(['error' => 'You already have lesson on this time'], 404);
             }
             //12:00  -  12:45
             //  12:15-12:30
-            if(((new Carbon($lesson->Lessons_starting_time)) < (new Carbon($userlessons[$i]->Lessons_starting_time)) && (new Carbon($lesson->Lessons_ending_time)) > (new Carbon($userlessons[$i]->Lessons_ending_time)))||((new Carbon($lesson->Lessons_starting_time)) > (new Carbon($userlessons[$i]->Lessons_starting_time)) && (new Carbon($lesson->Lessons_ending_time)) < (new Carbon($userlessons[$i]->Lessons_ending_time))))
+            if(((new Carbon($lesson->lessonsStartingTime)) < (new Carbon($userlessons[$i]->lessonsStartingTime)) && (new Carbon($lesson->LessonsEndingTime)) > (new Carbon($userlessons[$i]->LessonsEndingTime)))||((new Carbon($lesson->lessonsStartingTime)) > (new Carbon($userlessons[$i]->lessonsStartingTime)) && (new Carbon($lesson->LessonsEndingTime)) < (new Carbon($userlessons[$i]->LessonsEndingTime))))
             {
-                return response()->json(['error' => 'You already have lesson on this time']);
+                return response()->json(['error' => 'You already have lesson on this time'], 404);
             }
             //12:00-12:45
             //  12:00-13:00
-            if(((new Carbon($lesson->Lessons_starting_time)) > (new Carbon($userlessons[$i]->Lessons_starting_time)) && (new Carbon($lesson->Lessons_starting_time)) < (new Carbon($userlessons[$i]->Lessons_ending_time))) ||(new Carbon($lesson->Lessons_ending_time) > (new Carbon($userlessons[$i]->Lessons_starting_time)) && (new Carbon($lesson->Lessons_ending_time)) < (new Carbon($userlessons[$i]->Lessons_ending_time))))
+            if(((new Carbon($lesson->lessonsStartingTime)) > (new Carbon($userlessons[$i]->lessonsStartingTime)) && (new Carbon($lesson->lessonsStartingTime)) < (new Carbon($userlessons[$i]->LessonsEndingTime))) ||(new Carbon($lesson->LessonsEndingTime) > (new Carbon($userlessons[$i]->lessonsStartingTime)) && (new Carbon($lesson->LessonsEndingTime)) < (new Carbon($userlessons[$i]->LessonsEndingTime))))
             {
                 return response()->json(['error' => 'You already have lesson on this time'], 404);
             }
@@ -249,7 +219,7 @@ class LessonController extends Controller
         return response()->json(['success' => 'Successfully registered']);
     }
 
-    function deleteLesson($idSchool, $idFloor, $idClassroom, $id)
+    function deleteLesson($idSchool, $idClassroom, $id)
     {
         $role = (new AuthController)->authRole();
         if($role != 'System Administrator' && $role != 'School Administrator'&& $role != 'Teacher')
@@ -259,7 +229,6 @@ class LessonController extends Controller
                 'message' => 'No rights to do that',
             ], 401);
         }
-        $floor = \App\Models\Floor::find($idFloor);
         $school = \App\Models\School::find($idSchool);
         if (($role == 'School Administrator' || $role == 'Teacher' ) && $school->id_School != auth()->user()->fk_Schoolid_School)
         {
@@ -273,7 +242,7 @@ class LessonController extends Controller
         {
             return response()->json(['error' => 'Lesson not found'], 404);
         }
-        if ($role == 'Teacher' && auth()->user()->id_User != $lesson->creator_id)
+        if ($role == 'Teacher' && auth()->user()->id_User != $lesson->creatorId)
         {
             return response()->json([
                 'status' => 'error',
@@ -281,26 +250,18 @@ class LessonController extends Controller
             ], 401);
         }
         $classroom = \App\Models\Classroom::find($idClassroom);
-        $schoolsFloor = \App\Models\Floor::where('fk_Schoolid_School', '=', $idSchool)->where('id_Floor', '=', $idFloor)->get();
-        $FloorsClassroom = \App\Models\Classroom::where('fk_Floorid_Floor', '=', $idFloor)->where('id_Classroom', '=', $idClassroom)->get();
+        $SchoolsClassroom = \App\Models\Classroom::where('fk_Schoolid_School', '=', $idSchool)->where('id_Classroom', '=', $idClassroom)->get();
         $lessonUsers = \App\Models\Lesson::find($id)->users()->get();
-        
+
         if(!$school) {
             return response()->json(['error' => 'School not found'], 404);
-        }
-        if(!$floor) {
-            return response()->json(['error' => 'Floor not found'], 404);
         }
         if(!$classroom) {
             return response()->json(['error' => 'Classroom not found'], 404);
         }
-        if (count($schoolsFloor) < 1)
+        if (count($SchoolsClassroom) < 1)
         {
-            return response()->json(['error' => 'Floor is in another school. Cannot delete'], 404);
-        }
-        if (count($FloorsClassroom) < 1)
-        {
-            return response()->json(['error' => 'Classroom is on another floor. Cannot delete'], 404);
+            return response()->json(['error' => 'Classroom was not found in selected school'], 404);
         }
         if(count($lessonUsers))
         {
@@ -308,6 +269,7 @@ class LessonController extends Controller
         }
 
         $lesson->delete();
+
         return response()->json(['success' => 'Lesson deleted']);
     }
 
@@ -319,7 +281,7 @@ class LessonController extends Controller
         return response()->json(['success' => 'Successfully unregistered']);
     }
 
-    function updateLesson(Request $request, $idSchool, $idFloor, $idClassroom, $id)
+    function updateLesson(Request $request, $idSchool, $idClassroom, $id)
     {
         $role = (new AuthController)->authRole();
         if($role != 'System Administrator' && $role != 'School Administrator'&& $role != 'Teacher')
@@ -329,7 +291,6 @@ class LessonController extends Controller
                 'message' => 'No rights to do that',
             ], 401);
         }
-        $floor = \App\Models\Floor::find($idFloor);
         $school = \App\Models\School::find($idSchool);
         if (($role == 'School Administrator' || $role == 'Teacher' ) && $school->id_School != auth()->user()->fk_Schoolid_School)
         {
@@ -338,13 +299,13 @@ class LessonController extends Controller
                 'message' => 'No rights to add lessons in this school',
             ], 401);
         }
-        
+
         $lesson = \App\Models\Lesson::find($id);
         if (!$lesson)
         {
             return response()->json(['error' => 'Lesson not found'], 404);
         }
-        if ($role == 'Teacher' && auth()->user()->id_User != $lesson->creator_id)
+        if ($role == 'Teacher' && auth()->user()->id_User != $lesson->creatorId)
         {
             return response()->json([
                 'status' => 'error',
@@ -352,45 +313,37 @@ class LessonController extends Controller
             ], 401);
         }
         $classroom = \App\Models\Classroom::find($idClassroom);
-        $schoolsFloor = \App\Models\Floor::where('fk_Schoolid_School', '=', $idSchool)->where('id_Floor', '=', $idFloor)->get();
-        $FloorsClassroom = \App\Models\Classroom::where('fk_Floorid_Floor', '=', $idFloor)->where('id_Classroom', '=', $idClassroom)->get();
+        $SchoolsClassroom = \App\Models\Classroom::where('fk_Schoolid_School', '=', $idSchool)->where('id_Classroom', '=', $idClassroom)->get();
         $lessonUsers = \App\Models\Lesson::find($id)->users()->get();
-        
+
         if(!$school) {
             return response()->json(['error' => 'School not found'], 404);
-        }
-        if(!$floor) {
-            return response()->json(['error' => 'Floor not found'], 404);
         }
         if(!$classroom) {
             return response()->json(['error' => 'Classroom not found'], 404);
         }
-        if (count($schoolsFloor) < 1)
+        if (count($SchoolsClassroom) < 1)
         {
-            return response()->json(['error' => 'Floor is in another school'], 404);
+            return response()->json(['error' => 'Classroom was not found in selected school'], 404);
         }
-        if (count($FloorsClassroom) < 1)
-        {
-            return response()->json(['error' => 'Classroom is on another floor'], 404);
-        }
-        if(count($lessonUsers) && $request->Lower_grade_limit != $lesson->Lower_grade_limit)
+        if(count($lessonUsers) && $request->lowerGradeLimit != $lesson->lowerGradeLimit)
         {
             return response()->json(['error' => 'Lesson has users registered. Cannot change grade'], 404);
         }
 
         $lesson->update([
-            'Lessons_name' => $request->Lessons_name,
-            'Lessons_starting_time' => $request->Lessons_starting_time,
-            'Lessons_ending_time' => $request->Lessons_ending_time,
-            'Lower_grade_limit' => $request->Lower_grade_limit,
-            'Upper_grade_limit' => $request->Upper_grade_limit
+            'lessons_name' => $request->lessonsName,
+            'lessonsStartingTime' => $request->lessonsStartingTime,
+            'lessonsEndingTime' => $request->lessonsEndingTime,
+            'lowerGradeLimit' => $request->lowerGradeLimit,
+            'upperGradeLimit' => $request->upperGradeLimit
         ]);
         return response()->json(['success' => 'Lesson updated']);
     }
 
     function getUserLessons()
     {
-        $userlessons = \App\Models\User::find(auth()->user()->id_User)->lessons()->orderBy('Lessons_starting_time', 'asc')->get();
+        $userlessons = \App\Models\User::find(auth()->user()->id_User)->lessons()->orderBy('lessonsStartingTime', 'asc')->get();
         if (count($userlessons) < 1)
         {
             return response()->json(['error' => 'User has no lessons'], 404);
@@ -411,7 +364,7 @@ class LessonController extends Controller
     function getTeachersLessons()
     {
         $user = auth()->user();
-        $lessons = \App\Models\Lesson::where('creator_id', '=', $user->id_User)->orderBy('Lessons_starting_time', 'asc')->get();
+        $lessons = \App\Models\Lesson::where('creatorId', '=', $user->id_User)->orderBy('lessonsStartingTime', 'asc')->get();
         if (count($lessons) < 1)
         {
             return response()->json(['error' => 'There are no lessons'], 404);
@@ -421,5 +374,5 @@ class LessonController extends Controller
 
 
 
-    
+
 }

@@ -1,12 +1,13 @@
-import { Routes, Route } from 'react-router-dom';
-import Home from '../Home';
-import Login from '../Login';
-import Register from '../Register';
-import {Navbar, Nav, Container} from 'react-bootstrap';
-import {LinkContainer} from 'react-router-bootstrap';
+import { Routes, Route } from 'react-router-dom'
+import Home from '../Home'
+import Login from '../Login'
+import Register from '../Register'
+import { Navbar, Nav, Container } from 'react-bootstrap'
+import { LinkContainer } from 'react-router-bootstrap'
+import React from 'react'
 
-function Guest() {
-    return (
+function Guest () {
+  return (
         <>
             <Navbar bg="dark" variant="dark" expand="lg">
                 <Container>
@@ -37,7 +38,7 @@ function Guest() {
                 </Routes>
             </Container>
         </>
-    );
+  )
 }
 
-export default Guest;
+export default Guest

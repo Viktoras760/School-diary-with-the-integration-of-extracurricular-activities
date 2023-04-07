@@ -15,10 +15,10 @@ return new class extends Migration
     {
         Schema::create('school', function (Blueprint $table) {
             $table->integer('id_School', true);
-		    $table->string('Name');
-		    $table->string('Adress');
-		    $table->integer('Pupil_amount');
-		    $table->integer('Teacher_amount');
+		    $table->string('name');
+		    $table->string('address');
+		    $table->integer('pupilAmount');
+		    $table->integer('teacherAmount');
         });
     }
 

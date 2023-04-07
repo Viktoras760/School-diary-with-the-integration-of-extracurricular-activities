@@ -1,45 +1,48 @@
-import { useState } from "react"
-import APIController from '../Controllers/APIController';
+import React, { useState } from 'react'
+import APIController from '../Controllers/APIController'
 
-import { Row, Col, Card, Form, Button, Spinner } from 'react-bootstrap';
+import { Row, Col, Card, Form, Button, Spinner } from 'react-bootstrap'
+import { useNavigate } from 'react-router-dom'
 
-export default function Register() {
-    const { http } = APIController();
-    const [name, setName] = useState();
-    const [surname, setSurname] = useState();
-    const [personal_code, setPersonalCode] = useState();
-    const [email, setEmail] = useState();
-    const [password, setPassword] = useState();
+export default function Register () {
+  const { http } = APIController()
+  const [name, setName] = useState()
+  const [surname, setSurname] = useState()
+  const [personalCode, setPersonalCode] = useState()
+  const [email, setEmail] = useState()
+  const [password, setPassword] = useState()
 
-    const [isLoading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false)
 
+  const navigate = useNavigate()
 
-    const submitForm = () => {
-        setLoading(true);
-        http.post('/auth/users', { email: email, password: password, Name: name, Surname: surname, Personal_code: personal_code}).then((res) => {
-            alert(res.data.success);
-            setName('');
-            setSurname('');
-            setPersonalCode('');
-            setEmail('');
-            setPassword('');
-        }).catch((error) => {
-            if(error.response.data.error != null) {
-                alert(error.response.data.error);
-            } else if (error.response.data.errors != null) {
-                var errors = error.response.data.errors;
-                var all_errors = [];
-                Object.keys(errors).map((err) => (
-                    all_errors.push(errors[err][0])
-                ))
-                alert(all_errors.join("\n"));
-            }
-        }).finally(() => {
-            setLoading(false);
-        });
-    }
+  const submitForm = () => {
+    setLoading(true)
+    http.post('/auth/users', { email, password, name, surname, personalCode }).then((res) => {
+      alert(res.data.success)
+      setName('')
+      setSurname('')
+      setPersonalCode('')
+      setEmail('')
+      setPassword('')
+      navigate('/login')
+    }).catch((error) => {
+      if (error.response.data.error != null) {
+        alert(error.response.data.error)
+      } else if (error.response.data.errors != null) {
+        const errors = error.response.data.errors
+        const allErrors = []
+        Object.keys(errors).map((err) => (
+          allErrors.push(errors[err][0])
+        ))
+        alert(allErrors.join('\n'))
+      }
+    }).finally(() => {
+      setLoading(false)
+    })
+  }
 
-    return (
+  return (
         <Row className="justify-content-center pt-5">
             <Col sm={6}>
                 <Card className="p-4">
@@ -57,7 +60,7 @@ export default function Register() {
                     <Form.Group className="mb-3" controlId="formBasicPersonalcode">
                         <Form.Label>Personal code</Form.Label>
                         <Form.Control type="number" placeholder="Enter personal code" onChange={e => setPersonalCode(e.target.value)} />
-                    </Form.Group>   
+                    </Form.Group>
 
                     <Form.Group className="mb-3" controlId="formBasicEmail">
                         <Form.Label>Email address</Form.Label>
@@ -72,5 +75,5 @@ export default function Register() {
                 </Card>
             </Col>
         </Row>
-    )
+  )
 }

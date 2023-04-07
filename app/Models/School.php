@@ -14,10 +14,10 @@ class School extends Model
     protected $primaryKey = 'id_School';
 
     protected $fillable = [
-        'Name',
-        'Adress',
-        'Pupil_amount',
-        'Teacher_amount'
+        'name',
+        'address',
+        'pupilAmount',
+        'teacherAmount'
     ];
 
     public $timestamps=false;

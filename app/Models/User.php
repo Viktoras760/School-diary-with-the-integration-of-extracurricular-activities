@@ -19,17 +19,17 @@ class User extends Authenticatable implements JWTSubject
     protected $primaryKey = 'id_User';
 
     protected $fillable = [
-        'Name',
-        'Surname',
-        'Personal_code',
+        'name',
+        'surname',
+        'personalCode',
         'email',
-        'Grade',
+        'grade',
         'password',
         'iat',
-        'Role',
-        'Confirmation',
+        'role',
+        'confirmation',
         'fk_Schoolid_School',
-        'creator_id'
+        'creatorId'
     ];
 
     protected $hidden = [
@@ -57,7 +57,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return [
             'Users id'              => $this->id_User,
-            'Role'              => $this->Role,
+            'role'              => $this->role,
         ];
     }
 

@@ -1,106 +1,140 @@
-import { useEffect, useState, useRef } from 'react';
-import APIController from '../Controllers/APIController';
-import {Spinner, Button, Row, Col, Card, Form, Alert} from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
-import autoAnimate from "@formkit/auto-animate";
+import React, { useEffect, useState, useRef } from 'react'
+import APIController from '../Controllers/APIController'
+import { Spinner, Button, Row, Col, Card, Form, Alert } from 'react-bootstrap'
+import { useNavigate, useParams } from 'react-router-dom'
+import autoAnimate from '@formkit/auto-animate'
+import PropTypes from 'prop-types'
 
-export default function EditUser() {
-    const { http } = APIController();
-    const navigate = useNavigate();
+export default function EditUser () {
+  const { http } = APIController()
+  const navigate = useNavigate()
 
-    const { id } = useParams();
+  const { id } = useParams()
 
-    const [name, setName] = useState();
-    const [surname, setSurname] = useState();
-    const [personal_code, setPersonal_code] = useState();
-    const [email, setEmail] = useState();
-    const [grade, setGrade] = useState();
-    const [role, setRole] = useState();
-    const [password, setPassword] = useState();
-    const [confirmation, setConfirmation] = useState();
-    const [school_id, setSchoolID] = useState();
-    const [schools, setSchools] = useState([]);
+  const [name, setName] = useState('')
+  const [surname, setSurname] = useState('')
+  const [personalCode, setPersonalCode] = useState('')
+  const [email, setEmail] = useState('')
+  const [grade, setGrade] = useState('')
+  const [role, setRole] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmation, setConfirmation] = useState('')
+  const [schoolId, setSchoolID] = useState('')
+  const [schools, setSchools] = useState([])
 
-    const [isLoading, setLoading] = useState(false);
+  const [currentUserSchool, setCurrentUserSchool] = useState('')
 
-    const [errorMessage, setErrorMessage] = useState();
+  const [isLoading, setLoading] = useState(false)
 
-    const [open, setOpen] = useState(false);
-    const parentRef = useRef();
+  const [errorMessage, setErrorMessage] = useState('')
 
-    useEffect(() => {
-        fetchUserDetails();
-        fetchSchools();
-        if (parentRef.current) {
-            autoAnimate(parentRef.current);
+  const [open, setOpen] = useState(false)
+  const parentRef = useRef(null)
+
+  useEffect(() => {
+    fetchUserDetails()
+    fetchSchools()
+    if (parentRef.current) {
+      autoAnimate(parentRef.current)
+    }
+  }, [])
+
+  const showMore = () => setOpen(!open)
+
+  const fetchUserDetails = () => {
+    http
+      .get(`/user/${id}`)
+      .then((res) => {
+        setName(res.data.name)
+        setSurname(res.data.surname)
+        setPersonalCode(res.data.personalCode)
+        setEmail(res.data.email)
+        setGrade(res.data.grade)
+        setRole(res.data.role)
+        setPassword(res.data.password)
+        setConfirmation(res.data.confirmation)
+        setSchoolID(res.data.fk_Schoolid_School)
+        getCurrentUserSchool(res.data.fk_Schoolid_School).then(r => setCurrentUserSchool(r))
+      })
+      .catch(() => {
+        navigate('/users/')
+      })
+  }
+
+  const fetchSchools = () => {
+    http
+      .get('/schools/')
+      .then((res) => {
+        setSchools(res.data)
+      })
+      .catch(() => {
+        navigate('/users/')
+      })
+  }
+
+  const updateUser = () => {
+    setLoading(true)
+    http
+      .put(`/users/${id}`, {
+        name,
+        surname,
+        personalCode,
+        email,
+        grade,
+        role,
+        password,
+        confirmation,
+        fk_Schoolid_School: schoolId
+      })
+      .then((res) => {
+        sessionStorage.setItem('post-success', res.data.success)
+        navigate('/users')
+      })
+      .catch((error) => {
+        if (error.response.data.error != null) {
+          setErrorMessage(error.response.data.error)
+        } else if (error.response.data.errors != null) {
+          const errors = error.response.data.errors
+          const allErrors = []
+          Object.keys(errors).map((err) => allErrors.push(errors[err][0]))
+          setErrorMessage(allErrors.join('\n'))
         }
-    }, [parentRef]);
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
 
-    const showMore = () => setOpen(!open);
+  function ErrorAlert ({ message }) {
+    const [show, setShow] = useState(!!message)
 
-    const fetchUserDetails = () => {
-        http.get(`/user/${id}`).then((res) => {
-            setName(res.data.Name);
-            setSurname(res.data.Surname);
-            setPersonal_code(res.data.Personal_code);
-            setEmail(res.data.email);
-            setGrade(res.data.Grade);
-            setRole(res.data.Role);
-            setPassword(res.data.password);
-            setConfirmation(res.data.Confirmation);
-            setSchoolID(res.data.fk_Schoolid_School);
-        }).catch(() => {
-            navigate('/users/');
-        });
-    }
-
-    const fetchSchools = () => {
-        http.get(`/schools/`).then((res) => {
-            setSchools(res.data);
-        }).catch(() => {
-            navigate('/users/');
-        });
-    }
-
-    const updateUser = () => {
-        setLoading(true);
-        http.put(`/users/${id}`, { Name: name, Surname: surname, Personal_code: personal_code, Email: email, Grade: grade, Role: role, password: password, Confirmation: confirmation, fk_Schoolid_School: school_id }).then((res) => {
-            sessionStorage.setItem('post-success', res.data.success);
-            navigate('/users');
-        }).catch((error) => {
-            if(error.response.data.error != null) {
-                setErrorMessage(error.response.data.error);
-            } else if (error.response.data.errors != null) {
-                var errors = error.response.data.errors;
-                var all_errors = [];
-                Object.keys(errors).map((err) => (
-                    all_errors.push(errors[err][0])
-                ))
-                setErrorMessage(all_errors.join("\n"));
-            }
-        }).finally(() => {
-            setLoading(false);
-        });
-    }
-
-    function ErrorAlert({message}) {
-        const [show, setShow] = useState(message ? true : false);
-
-        if (show) {
-            return (
-                <Alert variant="danger" onClose={() => setShow(false)} dismissible className="mt-3">
+    if (show) {
+      return (
+                <Alert variant='danger' onClose={() => setShow(false)} dismissible className='mt-3'>
                     <Alert.Heading>Error</Alert.Heading>
-                    <p>
-                        {message}
-                    </p>
+                    <p>{message}</p>
                 </Alert>
-            );
-        }
-        return (<></>);
+      )
     }
+    return <></>
+  }
+  ErrorAlert.propTypes = {
+    message: PropTypes.string
+  }
 
-    if (name || surname || email ) {
-        return (
+  async function getCurrentUserSchool (usersSchoolId) {
+    try {
+      const res = await http.get(`/schools/${usersSchoolId}`)
+      console.log(res.data.name)
+      return res.data.name
+    } catch (error) {
+      console.error(error)
+      return null
+    }
+  }
+
+  if (name || surname || email) {
+    return (
             <Row className="justify-content-center pt-5">
                 <Col>
                     <Card className="p-4">
@@ -124,7 +158,7 @@ export default function EditUser() {
                                 <Form.Label>Show personal code</Form.Label>
                             </div>
                             {open && (
-                                <Form.Control readOnly type="number" placeholder="Enter personal code" value={personal_code} onChange={e => setPersonal_code(e.target.value)} />
+                                <Form.Control readOnly type="number" placeholder="Enter personal code" value={personalCode} onChange={e => setPersonalCode(e.target.value)} />
                             )}
                         </div>
                         </Form.Group>
@@ -157,10 +191,6 @@ export default function EditUser() {
                                 <option value="System Administrator" >System Administrator</option>
                             </Form.Select>
                         </Form.Group>
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Password</Form.Label>
-                            <Form.Control type="text" placeholder="Enter password" value={password} onChange={e => setPassword(e.target.value)} />
-                        </Form.Group>
                         <Form.Group className="mb-3" controlId="formBasicConfirmation">
                             <Form.Label>Confirmation</Form.Label>
                             <Form.Select className="mb-3" defaultValue={confirmation} onChange={e => setConfirmation(e.target.value)}>
@@ -173,13 +203,12 @@ export default function EditUser() {
                         <Form.Group className="mb-3" controlId="formBasicSchool">
                             <Form.Label>School</Form.Label>
                             <Form.Select onChange={e => setSchoolID(e.target.value)}>
-                                {schools.map((sch, index) => {
-                                    if (sch.id_School === school_id) {
-                                        return (<option key={sch.id_School} value={sch.id_School} selected>{sch.Name}</option>);
-                                    } else {
-                                        return (<option key={sch.id_School} value={sch.id_School}>{sch.Name}</option>);
-                                    }
-                                })}
+                                <option value={schoolId}>{currentUserSchool}</option>
+                                {schools.map(sch => (
+                                  <option key={sch.id_School} value={sch.id_School}>
+                                    {sch.name}
+                                  </option>
+                                ))}
                             </Form.Select>
                         </Form.Group>
                         <Button variant="primary" type="submit" disabled={isLoading} onClick={!isLoading ? updateUser : null}>
@@ -188,12 +217,12 @@ export default function EditUser() {
                     </Card>
                 </Col>
             </Row>
-        )
-    } else {
-        return (
+    )
+  } else {
+    return (
             <Row className="justify-content-center pt-5">
                 <Spinner animation="border" />
             </Row>
-        )
-    }
+    )
+  }
 }

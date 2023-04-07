@@ -14,11 +14,11 @@ class Lesson extends Model
     protected $primaryKey = 'id_Lesson';
 
     protected $fillable = [
-        'Lessons_name',
-        'Lessons_starting_time',
-        'Lessons_ending_time',
-        'Lower_grade_limit',
-        'Upper_grade_limit',
+        'lessonsName',
+        'lessonsStartingTime',
+        'lessonsEndingTime',
+        'lowerGradeLimit',
+        'upperGradeLimit',
         'fk_Classroomid_Classroom',
         'fk_Userid_User'
     ];

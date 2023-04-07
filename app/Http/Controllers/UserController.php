@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\Lesson;
-use Validator;
 use App\Http\Controllers\AuthController;
 
 class UserController extends Controller
@@ -17,64 +16,6 @@ class UserController extends Controller
     {
         $this->middleware('auth:api', ['except' => []]);
     }
-
-    // New user registration (adding to database)
-    function addUser(Request $req)
-    {
-        $code = \App\Models\User::where('Personal_code', '=', $req->input('Personal_code'))->get();
-        if(count($code) > 0)
-        {
-            return response()->json(['message' => 'User with such personal code already exist'], 400);
-        }
-        if($req->input('Personal_code') < 30000000000)
-        {
-            return response()->json(['message' => 'Invalid personal code'], 400);
-        }
-        //|regex:/^[a-zA-ZÑñ\s]+$/ 
-        //Lithuanian simbol problem with only letters regex
-        $validator = Validator::make($req->all(), [
-            'Name' => 'required|string|max:255',
-            'Surname' => 'required|string|max:255',
-            'email' => 'required|string|max:255'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 401);
-        }
-
-        $user = new User;
-        $user->Name= $req->input('Name');
-        $user->Surname= $req->input('Surname');
-        $user->Personal_code= $req->input('Personal_code');
-        $user->email= $req->input('email');
-        $user->password= Hash::make($req->input('password'));
-        $user->save();
-        return $user;
-    }
-
-
-    /*function getAllUnconfirmed()
-    {
-        $unconfirmed = \App\Models\User::where('user.Confirmation','=','Unconfirmed')->get();
-
-        if (count($uncomfirmed) < 1) {
-            return response()->json(['message' => 'Unconfirmed registration requests not found'], 404);
-        }
-        return $uncomfirmed;
-    }*/
-
-    /*function confirmRegistrationRequest($id, Request $request)
-    {
-        $user = \App\Models\User::find($id);
-
-        $user->update([
-            'fk_Schoolid_School' => $request->school,
-            'Confirmation' => $request->Confirmation,
-            'Grade' => $request->Grade
-        ]);
-
-        return response()->json(['success' => 'User updated successfully']);
-    }*/
 
     public function declineRegistrationRequest($id)
     {
@@ -87,11 +28,11 @@ class UserController extends Controller
             ], 401);
         }
         $user = \App\Models\User::find($id);
-        if ($user->Confirmation != 'Unconfirmed')
+        if ($user->confirmation != 'Unconfirmed')
         {
             return response()->json(['message' => 'User is already confirmed or declined'], 200);
         }
-        User::where('id_User',$id)->update(['Confirmation'=>'Declined']);
+        User::where('id_User',$id)->update(['confirmation'=>'Declined']);
         return response()->json(['message' => 'Registration declined'], 200);
     }
 
@@ -105,16 +46,16 @@ class UserController extends Controller
                 'message' => 'No rights to do that',
             ], 401);
         }
-        if ($request->Confirmation)
+        if ($request->confirmation)
         {
-            $users = \App\Models\User::where('user.Confirmation','=',$request->Confirmation)->get();
+            $users = \App\Models\User::where('user.confirmation','=',$request->confirmation)->get();
             return $users;
         }
-        else if (\App\Models\User::where('user.Confirmation','=',$request->Confirmation)->get() == NULL)
+        else if (\App\Models\User::where('user.confirmation','=',$request->confirmation)->get() == NULL)
         {
             return response()->json(['message' => 'Users with this filter are missing'], 404);
         }
-        else if (!$request->Confirmation && count($request->all()) > 1)
+        else if (!$request->confirmation && count($request->all()) > 1)
         {
             return response()->json(['message' => 'This filter is not implemented yet'], 404);
         }
@@ -178,21 +119,20 @@ class UserController extends Controller
         if(!$user) {
             return response()->json(['error' => 'User not found'], 404);
         }
-        $contains = Str::contains($request->Email, '@');
+        $contains = Str::contains($request->email, '@');
         if (!$contains)
         {
             return response()->json(['failure' => 'Invalid email entered']);
         }
         $user->update([
-            'Name' => $request->Name,
-            'Surname' => $request->Surname,
-            'Personal_code' => $request->Personal_code,
-            'Email' => $request->email,
-            'Grade' => $request->Grade,
-            'Password' => Hash::make($request->Password),
-            'Confirmation' => $request->Confirmation,
+            'name' => $request->name,
+            'surname' => $request->surname,
+            'personalCode' => $request->personalCode,
+            'email' => $request->email,
+            'grade' => $request->grade,
+            'confirmation' => $request->confirmation,
             'fk_Schoolid_School' => $request->fk_Schoolid_School,
-            'Role' => $request->Role
+            'role' => $request->role
         ]);
         return response()->json(['success' => 'User updated successfully']);
     }
@@ -207,21 +147,21 @@ class UserController extends Controller
                 'message' => 'No rights to do that',
             ], 401);
         }
-        if ($request->Confirmation)
+        if ($request->confirmation)
         {
-            $users = \App\Models\User::where('user.Confirmation','=',$request->Confirmation)->get();
+            $users = \App\Models\User::where('user.confirmation','=',$request->confirmation)->get();
             return $users;
         }
-        else if (\App\Models\User::where('user.Confirmation','=',$request->Confirmation)->get() == NULL)
+        else if (\App\Models\User::where('user.confirmation','=',$request->confirmation)->get() == NULL)
         {
             return response()->json(['message' => 'Users with this filter are missing'], 404);
         }
-        else if (!$request->Confirmation && count($request->all()) > 1)
+        else if (!$request->confirmation && count($request->all()) > 1)
         {
             return response()->json(['message' => 'This filter is not implemented yet'], 404);
         }*/
         $user = auth()->user();
-        $users = \App\Models\User::where('fk_Schoolid_School', '=', $user->fk_Schoolid_School)->where('Role', '!=', 'System Administrator')->get();
+        $users = \App\Models\User::where('fk_Schoolid_School', '=', $user->fk_Schoolid_School)->where('role', '!=', 'System Administrator')->get();
         return $users;
     }
 

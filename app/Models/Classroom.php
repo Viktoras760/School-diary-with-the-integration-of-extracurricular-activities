@@ -14,11 +14,11 @@ class Classroom extends Model
     protected $primaryKey = 'id_Classroom';
 
     protected $fillable = [
-        'Number',
-        'Pupil_capacity',
-        'Musical_equipment',
-        'Chemistry_equipment',
-        'Computers',
+        'number',
+        'pupilCapacity',
+        'musicalEquipment',
+        'chemistryEquipment',
+        'computers',
         'fk_Schoolid_School'
     ];
 

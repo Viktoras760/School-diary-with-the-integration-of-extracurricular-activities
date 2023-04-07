@@ -1,51 +1,56 @@
-import { useEffect, useState } from 'react';
-import APIController from '../Controllers/APIController';
+import React, { useEffect, useState } from 'react'
+import APIController from '../Controllers/APIController'
 
-import {Spinner} from 'react-bootstrap';
+import { Spinner } from 'react-bootstrap'
 
-export default function Dashboard() {
-    const { http } = APIController();
-    const [userdetail, setUserdetail] = useState('');
+export default function Dashboard () {
+  const { http } = APIController()
+  const [userDetail, setUserDetail] = useState('')
 
-    useEffect(() => {
-        fetchUserDetail();
-    }, []);
+  useEffect(() => {
+    fetchUserDetail()
+  }, [])
 
-    const fetchUserDetail = () => {
-        http.post('/auth/user').then((res) => {
-            setUserdetail(res.data);
-        });
-    }
+  const fetchUserDetail = () => {
+    http.post('/auth/user').then((res) => {
+      setUserDetail(res.data)
+    })
+  }
 
-    function renderElement() {
-        if (userdetail) {
-            return <div>
+  function renderElement () {
+    if (userDetail) {
+      return <div>
                 <h4>Name</h4>
-                <p>{userdetail.Name}</p>
+                <p>{userDetail.name}</p>
                 <h4>Email</h4>
-                <p>{userdetail.email}</p>
-                <h4>Grade</h4>
-                <p>{userdetail.Grade}</p>
+                <p>{userDetail.email}</p>
+        {userDetail.role === 'Pupil' && (
+          <div>
+            <h4>Grade</h4>
+            <p>{userDetail.grade}</p>
+          </div>
+        )}
                 <h4>Role</h4>
-                <p>{userdetail.Role}</p>
+                <p>{userDetail.role}</p>
             </div>
-        } else {
-            return (
+    } else {
+      return (
                 <div className="text-center">
                     <Spinner animation="border" />
                 </div>
-            );
-        }
-
+      )
     }
+  }
 
-    return (
+  return (
         <div>
             <h1 className="mb-4 mt-4">Dashboard page</h1>
-            {userdetail.fk_Schoolid_School == null ? <>
-            <p className="mb-4 mt-4"><strong>Warning! You won't be able to see your schools data until you get assigned to it!!!</strong></p></> : ""}
+            {userDetail.fk_Schoolid_School == null
+              ? <>
+            <p className="mb-4 mt-4"><strong>Warning! You will not be able to see your schools data until you get assigned to it!!!</strong></p></>
+              : ''}
             {renderElement()}
-    
+
         </div>
-    )
+  )
 }

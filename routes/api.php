@@ -28,7 +28,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group([
     'middleware' => 'api'
 ], function ($router) {
-//Route::post('users', [UserController::class, 'addUser']);
 Route::get('user/{id}', [UserController::class, 'getUser']);
 Route::patch('users/{id}', [UserController::class, 'declineRegistrationRequest']);
 Route::get('users', [UserController::class, 'getAllUsers']);
@@ -58,7 +57,7 @@ Route::post('schools/{idSchool}/classrooms', [ClassroomController::class, 'addCl
 Route::put('schools/{idSchool}/classrooms/{idClassroom}', [ClassroomController::class, 'updateClassroom']);
 Route::get('schools/{idSchool}/classrooms/{idClassroom}', [ClassroomController::class, 'getClassroom']);
 Route::delete('schools/{idSchool}/classrooms/{idClassroom}', [ClassroomController::class, 'deleteClassroom']);
-Route::get('schools/{idSchool}/classrooms', [ClassroomController::class, 'getClassroomByFloor']);
+Route::get('schools/{idSchool}/classrooms', [ClassroomController::class, 'getClassroomBySchool']);
 });
 
 //Lesson routes
@@ -81,9 +80,9 @@ Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
 ], function ($router) {
-    Route::post('iat', [AuthController::class, 'login'])/*->name('login')*/;
+    Route::post('iat', [AuthController::class, 'login']);
     Route::post('users', [AuthController::class, 'register']);
-    Route::get('tokens', [AuthController::class, 'logout'])/*->name('logout')*/;
+    Route::get('tokens', [AuthController::class, 'logout']);
     Route::post('tokens', [AuthController::class, 'refresh']);
     Route::post('user', [AuthController::class, 'me']);
 });

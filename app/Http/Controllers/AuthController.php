@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-use Validator;
-use JWTAuth;
+use Illuminate\Support\Facades\Validator;
+use PHPOpenSourceSaver\JWTAuth\JWTAuth;
 use App\Models\Lesson;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use App\Http\Controllers\UserController;
@@ -21,7 +21,7 @@ class AuthController extends Controller
         $this->middleware('auth:api', ['except' => ['login','register']]);
     }
 
-    public function loggedIn()
+    public function loggedIn(): bool
     {
         if (auth()->user())
         return True;
@@ -31,14 +31,14 @@ class AuthController extends Controller
     public function authRole()
     {
         $log = AuthController::loggedIn();
-        if ($log == True)
+        if ($log)
         {
-            return auth()->user()->Role;
+            return auth()->user()->role;
         }
         else return response()->json([
             'status' => 'error',
             'message' => 'Unauthorized',
-        ], 401); 
+        ], 401);
     }
 
     public function payloadEncoding($token)
@@ -52,14 +52,14 @@ class AuthController extends Controller
         } catch (Throwable $e) {
             throw new JwtServiceException('Provided JWT is invalid.', $e);
         }
-        
+
         if (
             !($header = base64_decode($header))
             || !($payload = base64_decode($payload))
         ) {
             throw new JwtServiceException('Provided JWT can not be decoded from base64.');
         }
-        
+
         if (
             empty(($header = json_decode($header, true)))
             || empty(($payload = json_decode($payload, true)))
@@ -71,7 +71,7 @@ class AuthController extends Controller
 
     }
 
-    public function login(Request $request)
+    public function login(Request $request): \Illuminate\Http\JsonResponse
     {
         //validating credentials
         $request->validate([
@@ -79,8 +79,6 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
         $credentials = $request->only('email', 'password');
-
-        
         //getting user token
         $token = Auth::attempt($credentials);
         if (!$token) {
@@ -120,14 +118,6 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
-        /*return response()->json([
-                'status' => 'success',
-                'user' => $user,
-                'authorisation' => [
-                    'token' => $token,
-                    'type' => 'bearer',
-                ]
-            ]);*/
             return response()->json([
                 'access_token' => $token,
                 'token_type' => 'bearer',
@@ -137,9 +127,10 @@ class AuthController extends Controller
 
     }
 
-    public function register(Request $request){
-        $validator = Validator::make(request(['Name', 'email', 'password']), [
-            'Name' => 'required|string|max:255',
+    public function register(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $validator = Validator::make(request(['name', 'email', 'password']), [
+            'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:user',
             'password' => 'required|string|min:6',
         ]);
@@ -149,28 +140,17 @@ class AuthController extends Controller
         }
 
         $user = User::create([
-            'Name' => $request->Name,
-            'Surname' => $request->Surname,
-            'Personal_code'=> $request->Personal_code,
+            'name' => $request->name,
+            'surname' => $request->surname,
+            'personalCode'=> $request->personalCode,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-        
 
-        $token = Auth::login($user);
-        /*return response()->json([
-            'status' => 'success',
-            'message' => 'User created successfully',
-            'user' => $user,
-            'authorisation' => [
-                'token' => $token,
-                'type' => 'bearer',
-            ]
-        ]);*/
         return response()->json(['success' => 'User created successfully'], 200);
     }
 
-    public function logout()
+    public function logout(): \Illuminate\Http\JsonResponse
     {
         auth()->user()->update([
             'iat' => NULL
@@ -182,7 +162,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function refresh()
+    public function refresh(): \Illuminate\Http\JsonResponse
     {
         return response()->json([
             'status' => 'success',

@@ -1,53 +1,57 @@
-import { useEffect, useState } from 'react';
-import APIController from '../Controllers/APIController';
-import {Spinner, Button, Row, Col, Alert, Modal} from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import APIController from '../Controllers/APIController'
+import { Spinner, Button, Row, Col, Alert, Modal } from 'react-bootstrap'
+import PropTypes from 'prop-types'
+import { useNavigate } from 'react-router-dom'
 
 const LessonDetail = ({ lesson, onDelete }) => {
-    const { http } = APIController();
-    const [isLoadingDelete, setLoadingDelete] = useState(false);
-    const [isLoadingApprove, setLoadingApprove] = useState(false);
-    const navigate = useNavigate();
-    
+  const { http } = APIController()
+  const [isLoadingDelete, setLoadingDelete] = useState(false)
+  const [isLoadingApprove] = useState(false)
 
-    const deleteLesson = () => {
-        setLoadingDelete(true);
+  LessonDetail.propTypes = {
+    lesson: PropTypes.object.isRequired,
+    onDelete: PropTypes.func.isRequired
+  }
+
+  const deleteLesson = () => {
+    setLoadingDelete(true)
+  }
+
+  function submitDelete () {
+    http.delete(`/user_lessons/${lesson.id_Lesson}`).then((res) => {
+      alert(res.data.success)
+      onDelete()
+    }).catch((error) => {
+      if (error.response.data.error != null) {
+        alert(error.response.data.error)
+      } else if (error.response.data.errors != null) {
+        const errors = error.response.data.errors
+        const allErrors = []
+        Object.keys(errors).map((err) => (
+          allErrors.push(errors[err][0])
+        ))
+        alert(allErrors.join('\n'))
+      }
+    }).finally(() => {
+      setLoadingDelete(false)
+    })
+  }
+
+  function DeleteApproval ({ message }) {
+    const [show, setShow] = useState(message)
+
+    const handleSubmit = () => {
+      setShow(false)
+      submitDelete()
     }
 
-    function submitDelete() {
-        http.delete(`/user_lessons/${lesson.id_Lesson}`).then((res) => {
-            alert(res.data.success);
-            onDelete();
-        }).catch((error) => {
-            if(error.response.data.error != null) {
-                alert(error.response.data.error);
-            } else if (error.response.data.errors != null) {
-                var errors = error.response.data.errors;
-                var all_errors = [];
-                Object.keys(errors).map((err) => (
-                    all_errors.push(errors[err][0])
-                ))
-                alert(all_errors.join("\n"));
-            }
-        }).finally(() => {
-            setLoadingDelete(false); 
-        });
+    const handleClose = () => {
+      setShow(false)
+      setLoadingDelete(false)
     }
 
-    function DeleteApproval({message}) {
-        const [show, setShow] = useState(message);
-
-        const handleSubmit = () => {
-            setShow(false);
-            submitDelete();
-        }
-      
-        const handleClose = () => {
-            setShow(false);
-            setLoadingDelete(false);
-        }
-      
-        return (
+    return (
             <>
                 <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
@@ -64,17 +68,20 @@ const LessonDetail = ({ lesson, onDelete }) => {
                 </Modal.Footer>
                 </Modal>
             </>
-        );
-    }
+    )
+  }
+  DeleteApproval.propTypes = {
+    message: PropTypes.bool.isRequired
+  }
 
-    return (
+  return (
         <>
         <DeleteApproval message={isLoadingDelete} />
             <Col sm={6}>
                 <div className="card mb-3">
                     <div className="card-body">
 
-                        <p>Lessons name: {lesson.Lessons_name}</p> 
+                        <p>Lessons name: {lesson.Lessons_name}</p>
                         <p>Lessons starting time: {lesson.Lessons_starting_time}</p>
                         <p>Lessons ending time: {lesson.Lessons_ending_time}</p>
                         <Button variant="primary" className="w-100 mb-2" disabled={isLoadingApprove}>
@@ -87,72 +94,76 @@ const LessonDetail = ({ lesson, onDelete }) => {
                 </div>
             </Col>
         </>
-    );
+  )
 }
 
-function UserLessons() {
-    const { http } = APIController();
-    const [LessonDetails, setLessonDetails] = useState('');
-    const [successMessage, setSuccessMessage] = useState(sessionStorage.getItem('post-success'));
-    const [errorMessage, setErrorMessage] = useState();
-    const navigate = useNavigate();
-    const [isLoading, setLoading] = useState(false);
+function UserLessons () {
+  const { http } = APIController()
+  const [LessonDetails, setLessonDetails] = useState('')
+  const [successMessage, setSuccessMessage] = useState(sessionStorage.getItem('post-success'))
+  const navigate = useNavigate()
+  const [, setLoading] = useState(false)
 
-    useEffect(() => {
-        fetchLessonDetails();
-    }, []);
+  useEffect(() => {
+    fetchLessonDetails()
+  }, [])
 
-    const fetchLessonDetails = () => {
-        http.get('/user_lessons/').then((res) => {
-            setLessonDetails(res.data);
-        }).catch((error) => {
-            if(error.response.data.error != null) {
-                alert(error.response.data.error);
-            } else if (error.response.data.errors != null) {
-                var errors = error.response.data.errors;
-                var all_errors = [];
-                Object.keys(errors).map((err) => (
-                    all_errors.push(errors[err][0])
-                ))
-                alert(all_errors.join("\n"));
-            }
-            navigate(-1);
-        }).finally(() => {
-            setLoading(false);
-            //navigate(-1);
-        });
-    }
+  const fetchLessonDetails = () => {
+    http.get('/user_lessons/').then((res) => {
+      setLessonDetails(res.data)
+    }).catch((error) => {
+      if (error.response.data.error != null) {
+        alert(error.response.data.error)
+      } else if (error.response.data.errors != null) {
+        const errors = error.response.data.errors
+        const allErrors = []
+        Object.keys(errors).map((err) => (
+          allErrors.push(errors[err][0])
+        ))
+        alert(allErrors.join('\n'))
+      }
+      navigate(-1)
+    }).finally(() => {
+      setLoading(false)
+      // navigate(-1);
+    })
+  }
 
-    function SuccessAlert({message}) {
-        const [show, setShow] = useState(message ? true : false);
+  function SuccessAlert ({ message }) {
+    const [show, setShow] = useState(!!message)
 
-        if (show) {
-            sessionStorage.removeItem('post-success');
-            return (
-                <Alert variant="success" onClose={() => {setShow(false); setSuccessMessage(); }} dismissible className="mt-3">
+    if (show) {
+      sessionStorage.removeItem('post-success')
+      return (
+                <Alert variant="success" onClose={() => { setShow(false); setSuccessMessage() }} dismissible className="mt-3">
                     <Alert.Heading>Success</Alert.Heading>
                     <p>
                         {message}
                     </p>
                 </Alert>
-            );
-        }
-        return (<></>);
+      )
     }
+    return (<></>)
+  }
+  SuccessAlert.propTypes = {
+    message: PropTypes.string
+  }
 
-    return (
+  return (
         <div>
             <h1 className="mb-4 mt-4">Lessons</h1>
             <SuccessAlert message={successMessage} />
             <Row className="justify-content-center mt-3">
-                {LessonDetails ? LessonDetails.map((lesson, index) => {
-                    return (<LessonDetail lesson={lesson} onDelete={fetchLessonDetails} key={index} />);
-                    }) : <div className="text-center">
+                {LessonDetails
+                  ? LessonDetails.map((lesson, index) => {
+                    return (<LessonDetail lesson={lesson} onDelete={fetchLessonDetails} key={index} />)
+                  })
+                  : <div className="text-center">
                     <Spinner animation="border" />
                 </div>}
             </Row>
         </div>
-    )
+  )
 }
 
-export default UserLessons;
+export default UserLessons

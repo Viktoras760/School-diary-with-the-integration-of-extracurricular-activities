@@ -1,53 +1,43 @@
-import React, {useEffect, useState} from "react";
-import APIController from '../Controllers/APIController';
-import { Navigate, useParams} from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import {Spinner, Button, Row, Col, Alert, Modal} from 'react-bootstrap';
+import React, { useEffect, useState } from 'react'
+import APIController from '../Controllers/APIController'
+import { useNavigate } from 'react-router-dom'
 
-function SchoolList() {
+function SchoolList () {
+  const navigate = useNavigate()
+  const { http } = APIController()
+  const [Schools, setSchools] = useState('')
 
-    const navigate = useNavigate();
-    const { http } = APIController();
-    const [Schools, setSchools] = useState('');
+  useEffect(() => {
+    fetchSchools()
+  }, [])
 
-    useEffect(() => {
-        fetchSchools();
-    }, []);
+  const fetchSchools = () => {
+    http.get('/schools/').then((res) => {
+      setSchools(res.data)
+    })
+  }
+  const editSchool = async (e, id) => {
+    navigate(`/schools/${id}`)
+  }
 
-    const fetchSchools= () => {
+  const addSchool = () => {
+    navigate('/school')
+  }
 
-        console.log("fetching");
-        http.get('/schools/').then((res) => {
-            setSchools(res.data);
-        });
-        
+  const DeleteSchool = async (e, id) => {
+    http.delete(`/schools/${id}`, {
 
-    };
-    const editSchool= async(e, id) => {
-        navigate(`/schools/${id}`);
-    };
+    }).then((res) => {
+      console.log(res.data)
+      window.location.reload()
+    }).catch(() => {
+      alert('Failed to remove school')
+      navigate('/schools/')
+    })
+    navigate('/schools/')
+  }
 
-    const addSchool= () => {
-        navigate(`/school`);
-    };
-
-    const DeleteSchool= async(e, id) => {
-
-
-        http.delete(`/schools/${id}`, {
-            
-        }).then((res) => {
-            console.log(res.data);
-            window.location.reload();
-        }).catch((res) => {
-            //alert(res.data);
-            alert("Failed to remove school");
-            navigate(`/schools/`);
-        })  
-        navigate(`/schools/`);
-    };
-
-    return (
+  return (
         <div>
           <div className="container">
             <div className="row">
@@ -68,7 +58,7 @@ function SchoolList() {
                     <thead>
                       <tr>
                         <th scope="col">Name</th>
-                        <th scope="col">Adress</th>
+                        <th scope="col">Address</th>
                         <th scope="col">Pupil amount</th>
                         <th scope="col">Edit</th>
                         <th scope="col">Delete</th>
@@ -77,9 +67,9 @@ function SchoolList() {
                     <tbody>
                       {Object.entries(Schools).map(([key, val]) => (
                         <tr key={val.id_School}>
-                          <th scope="row">{val.Name}</th>
-                          <th scope="row">{val.Adress}</th>
-                          <th scope="row">{val.Pupil_amount}</th>
+                          <th scope="row">{val.name}</th>
+                          <th scope="row">{val.address}</th>
+                          <th scope="row">{val.pupilAmount}</th>
                           <td>
                             <button
                               className="btn btn-success"
@@ -105,8 +95,7 @@ function SchoolList() {
             </div>
           </div>
         </div>
-    );
-    
+  )
 }
 
-export default SchoolList;
+export default SchoolList
