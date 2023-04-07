@@ -40,13 +40,12 @@ Route::get('school_users', [UserController::class, 'getSchoolUsers']);
 Route::group([
     'middleware' => 'api'
 ], function ($router) {
-    Route::post('schools', [SchoolController::class, 'addSchool']);
+    /*Route::post('schools', [SchoolController::class, 'addSchool']);
     Route::put('schools/{id}', [SchoolController::class, 'updateSchool']);
     Route::get('schools/{id}', [SchoolController::class, 'getSchool']);
     Route::get('schools', [SchoolController::class, 'getAllSchools']);
-    Route::delete('schools/{id}', [SchoolController::class, 'deleteSchool']);
-    Route::get('test', [SchoolController::class, 'test']);
-
+    Route::delete('schools/{id}', [SchoolController::class, 'deleteSchool']);*/
+    $router->apiResource('schools', SchoolController::class);
 });
 
 //Classroom routes
