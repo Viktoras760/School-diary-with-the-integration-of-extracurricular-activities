@@ -21,7 +21,7 @@ class SchoolService
       ], 401);
     }
 
-    else if (($role == 'School Administrator' && $school->id_School != (auth()->user()->fk_Schoolid_School ?? null)) && $role != 'System Administrator')
+    else if ($role == 'School Administrator' && ($school->id_School != (auth()->user()->fk_Schoolid_School ?? null)))
     {
       return response()->json([
         'status' => 'error',

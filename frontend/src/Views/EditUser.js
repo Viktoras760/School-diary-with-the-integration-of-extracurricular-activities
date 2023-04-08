@@ -125,7 +125,6 @@ export default function EditUser () {
   async function getCurrentUserSchool (usersSchoolId) {
     try {
       const res = await http.get(`/schools/${usersSchoolId}`)
-      console.log(res.data.name)
       return res.data.name
     } catch (error) {
       console.error(error)

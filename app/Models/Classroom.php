@@ -15,6 +15,7 @@ class Classroom extends Model
 
     protected $fillable = [
         'number',
+        'floorNumber',
         'pupilCapacity',
         'musicalEquipment',
         'chemistryEquipment',

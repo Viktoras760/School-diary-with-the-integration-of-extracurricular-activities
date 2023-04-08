@@ -40,23 +40,19 @@ Route::get('school_users', [UserController::class, 'getSchoolUsers']);
 Route::group([
     'middleware' => 'api'
 ], function ($router) {
-    /*Route::post('schools', [SchoolController::class, 'addSchool']);
-    Route::put('schools/{id}', [SchoolController::class, 'updateSchool']);
-    Route::get('schools/{id}', [SchoolController::class, 'getSchool']);
-    Route::get('schools', [SchoolController::class, 'getAllSchools']);
-    Route::delete('schools/{id}', [SchoolController::class, 'deleteSchool']);*/
-    $router->apiResource('schools', SchoolController::class);
+  $router->apiResource('schools', SchoolController::class);
 });
 
 //Classroom routes
 Route::group([
     'middleware' => 'api'
 ], function ($router) {
-Route::post('schools/{idSchool}/classrooms', [ClassroomController::class, 'addClassroom']);
+/*Route::post('schools/{idSchool}/classrooms', [ClassroomController::class, 'addClassroom']);
 Route::put('schools/{idSchool}/classrooms/{idClassroom}', [ClassroomController::class, 'updateClassroom']);
 Route::get('schools/{idSchool}/classrooms/{idClassroom}', [ClassroomController::class, 'getClassroom']);
 Route::delete('schools/{idSchool}/classrooms/{idClassroom}', [ClassroomController::class, 'deleteClassroom']);
-Route::get('schools/{idSchool}/classrooms', [ClassroomController::class, 'getClassroomBySchool']);
+Route::get('schools/{idSchool}/classrooms', [ClassroomController::class, 'getClassroomBySchool']);*/
+  $router->apiResource('schools/{idSchool}/classrooms', ClassroomController::class);
 });
 
 //Lesson routes

@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('classroom', function (Blueprint $table) {
 
 		$table->integer('number');
-        $table->integer('floorNumber');
+    $table->integer('floorNumber');
 		$table->integer('pupilCapacity');
 		$table->enum('musicalEquipment',['Yra', 'Nėra'])->nullable();
 		$table->enum('chemistryEquipment',['Yra', 'Nėra'])->nullable();
