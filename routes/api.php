@@ -28,12 +28,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group([
     'middleware' => 'api'
 ], function ($router) {
-Route::get('user/{id}', [UserController::class, 'getUser']);
-Route::patch('users/{id}', [UserController::class, 'declineRegistrationRequest']);
-Route::get('users', [UserController::class, 'getAllUsers']);
-Route::delete('users/{id}', [UserController::class, 'deleteUser']);
-Route::put('users/{id}', [UserController::class, 'updateUser']);
-Route::get('school_users', [UserController::class, 'getSchoolUsers']);
+  Route::get('school_users/', [UserController::class, 'getSchoolUsers']);
+  $router->apiResource('users', UserController::class);
 });
 
 //School routes

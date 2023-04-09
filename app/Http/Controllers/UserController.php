@@ -2,169 +2,106 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\AuthController;
+use App\Http\Requests\UserUpdateRequest;
+use App\Services\UserService;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\Lesson;
-use App\Http\Controllers\AuthController;
 
 class UserController extends Controller
 {
+  private UserService $userService;
+  public function __construct(UserService $userService)
+  {
+    $this->userService = $userService;
+    $this->middleware('auth:api', ['except' => []]);
+  }
 
-    public function __construct()
-    {
-        $this->middleware('auth:api', ['except' => []]);
+  function index(): Collection|JsonResponse|bool
+  {
+    try {
+      $handle = $this->userService->userIndexErrorHandler();
+
+      if (!$handle) {
+        return User::all();
+      } else {
+        return $handle;
+      }
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }
+  }
 
-    public function declineRegistrationRequest($id)
-    {
-        $role = (new AuthController)->authRole();
-        if($role != 'System Administrator')
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to do that',
-            ], 401);
-        }
-        $user = \App\Models\User::find($id);
-        if ($user->confirmation != 'Unconfirmed')
-        {
-            return response()->json(['message' => 'User is already confirmed or declined'], 200);
-        }
-        User::where('id_User',$id)->update(['confirmation'=>'Declined']);
-        return response()->json(['message' => 'Registration declined'], 200);
+  function show($id)
+  {
+    try {
+      $handle = $this->userService->userShowErrorHandler($id);
+
+      if (!$handle) {
+        return User::find($id);
+      } else {
+        return $handle;
+      }
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }
+  }
 
-    function getAllUsers(Request $request)
-    {
-        $role = (new AuthController)->authRole();
-        if($role != 'System Administrator')
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to do that',
-            ], 401);
-        }
-        if ($request->confirmation)
-        {
-            $users = \App\Models\User::where('user.confirmation','=',$request->confirmation)->get();
-            return $users;
-        }
-        else if (\App\Models\User::where('user.confirmation','=',$request->confirmation)->get() == NULL)
-        {
-            return response()->json(['message' => 'Users with this filter are missing'], 404);
-        }
-        else if (!$request->confirmation && count($request->all()) > 1)
-        {
-            return response()->json(['message' => 'This filter is not implemented yet'], 404);
-        }
-        $users = \App\Models\User::all();
-        return $users;
-    }
+  function destroy($id): JsonResponse|bool
+  {
+    try {
+      $handle = $this->userService->userDestroyErrorHandler($id);
 
-    function getUser($id)
-    {
-        $role = (new AuthController)->authRole();
-        if($role != 'System Administrator')
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to do that',
-            ], 401);
-        }
-        $user = \App\Models\User::find($id);
-        return $user;
-    }
-
-    function deleteUser($id)
-    {
-        $role = (new AuthController)->authRole();
-        if($role != 'System Administrator')
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to do that',
-            ], 401);
-        }
-        $user = \App\Models\User::find($id);
-
-        if ($user == "") {
-            return response()->json(['message' => 'User does not exist'], 404);
-        }
+      if (!$handle) {
+        $user = User::find($id);
 
         $user->delete();
+
         return response()->json(['success' => 'User deleted']);
+      } else {
+        return $handle;
+      }
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }
+  }
 
-    function updateUser($id, Request $request)
-    {
-        $user = \App\Models\User::find($id);
-        $role = (new AuthController)->authRole();
-        if (($role == 'Teacher' || $role == 'Pupil') && $id != auth()->user()->id_User)
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to update other users',
-            ], 401);
-        }
-        else if ($role == 'School Administrator' && auth()->user()->fk_Schoolid_School != $user->fk_Schoolid_School)
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to update users from this school',
-            ], 401);
-        }
-        $user = \App\Models\User::find($id);
-        if(!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-        $contains = Str::contains($request->email, '@');
-        if (!$contains)
-        {
-            return response()->json(['failure' => 'Invalid email entered']);
-        }
-        $user->update([
-            'name' => $request->name,
-            'surname' => $request->surname,
-            'personalCode' => $request->personalCode,
-            'email' => $request->email,
-            'grade' => $request->grade,
-            'confirmation' => $request->confirmation,
-            'fk_Schoolid_School' => $request->fk_Schoolid_School,
-            'role' => $request->role
-        ]);
-        return response()->json(['success' => 'User updated successfully']);
+  function update($id, UserUpdateRequest $request): User|JsonResponse
+  {
+    $data = $request->validated();
+
+    try {
+      $handle = $this->userService->handleUpdateError($id);
+      if (!$handle) {
+        return $this->userService->update($data, $id);
+      } else {
+        return $handle;
+      }
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }
+  }
 
-    function getSchoolUsers()
-    {
-        $role = (new AuthController)->authRole();
-        /*if($role != 'System Administrator' || $role != 'School Administrator')
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to do that',
-            ], 401);
-        }
-        if ($request->confirmation)
-        {
-            $users = \App\Models\User::where('user.confirmation','=',$request->confirmation)->get();
-            return $users;
-        }
-        else if (\App\Models\User::where('user.confirmation','=',$request->confirmation)->get() == NULL)
-        {
-            return response()->json(['message' => 'Users with this filter are missing'], 404);
-        }
-        else if (!$request->confirmation && count($request->all()) > 1)
-        {
-            return response()->json(['message' => 'This filter is not implemented yet'], 404);
-        }*/
-        $user = auth()->user();
-        $users = \App\Models\User::where('fk_Schoolid_School', '=', $user->fk_Schoolid_School)->where('role', '!=', 'System Administrator')->get();
-        return $users;
+  function getSchoolUsers()
+  {
+    try {
+      $role = (new AuthController)->authRole();
+      if($role != 'System Administrator' && $role != 'School Administrator')
+      {
+        return response()->json([
+          'status' => 'error',
+          'message' => 'No rights to do that',
+        ], 401);
+      }
+      return User::where('fk_Schoolid_School', '=', auth()->user()->fk_Schoolid_School ?? null)->where('role', '!=', 'System Administrator')->get();
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }
-
-
-
+  }
 }
