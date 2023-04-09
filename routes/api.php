@@ -47,11 +47,6 @@ Route::group([
 Route::group([
     'middleware' => 'api'
 ], function ($router) {
-/*Route::post('schools/{idSchool}/classrooms', [ClassroomController::class, 'addClassroom']);
-Route::put('schools/{idSchool}/classrooms/{idClassroom}', [ClassroomController::class, 'updateClassroom']);
-Route::get('schools/{idSchool}/classrooms/{idClassroom}', [ClassroomController::class, 'getClassroom']);
-Route::delete('schools/{idSchool}/classrooms/{idClassroom}', [ClassroomController::class, 'deleteClassroom']);
-Route::get('schools/{idSchool}/classrooms', [ClassroomController::class, 'getClassroomBySchool']);*/
   $router->apiResource('schools/{idSchool}/classrooms', ClassroomController::class);
 });
 
@@ -59,15 +54,11 @@ Route::get('schools/{idSchool}/classrooms', [ClassroomController::class, 'getCla
 Route::group([
     'middleware' => 'api'
 ], function ($router) {
-Route::get('schools/{idSchool}/classrooms/{idClassroom}/lessons/{id}', [LessonController::class, 'getLesson']);
-Route::get('schools/{idSchool}/classrooms/{idClassroom}/lessons/', [LessonController::class, 'getLessons']);
-Route::post('schools/{idSchool}/classrooms/{idClassroom}/lessons', [LessonController::class, 'addLesson']);
-Route::post('schools/{idSchool}/classrooms/{idClassroom}/lessons/{id}', [LessonController::class, 'registerToLesson']);
-Route::delete('schools/{idSchool}/classrooms/{idClassroom}/lessons/{id}', [LessonController::class, 'deleteLesson']);
-Route::delete('user_lessons/{id}', [LessonController::class, 'unregisterFromLesson']);
-Route::put('schools/{idSchool}/classrooms/{idClassroom}/lessons/{id}', [LessonController::class, 'updateLesson']);
-Route::get('user_lessons/', [LessonController::class, 'getUserLessons']);
-Route::get('teacher_lessons/', [LessonController::class, 'getTeachersLessons']);
+  Route::post('schools/{idSchool}/classrooms/{idClassroom}/lessons/{id}', [LessonController::class, 'registerToLesson']);
+  Route::delete('user_lessons/{id}', [LessonController::class, 'unregisterFromLesson']);
+  Route::get('user_lessons/', [LessonController::class, 'getUserLessons']);
+  Route::get('teacher_lessons/', [LessonController::class, 'getTeachersLessons']);
+  $router->apiResource('schools/{idSchool}/classrooms/{idClassroom}/lessons', LessonController::class);
 });
 
 //Auth routes

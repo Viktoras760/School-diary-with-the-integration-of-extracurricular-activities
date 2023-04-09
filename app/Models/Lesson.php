@@ -20,12 +20,12 @@ class Lesson extends Model
         'lowerGradeLimit',
         'upperGradeLimit',
         'fk_Classroomid_Classroom',
-        'fk_Userid_User'
+        'creatorId'
     ];
 
     protected $hidden = [
         'fk_Classroomid_Classroom',
-        'fk_Userid_User'
+        'creatorId'
     ];
 
     public $timestamps=false;

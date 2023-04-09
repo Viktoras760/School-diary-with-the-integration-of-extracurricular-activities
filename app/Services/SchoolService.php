@@ -96,8 +96,7 @@ class SchoolService
    */
   public function create($data): School
   {
-    $school = School::create($data);
-    return $school;
+    return School::create($data);
   }
 
   public function schoolExistance($data) {

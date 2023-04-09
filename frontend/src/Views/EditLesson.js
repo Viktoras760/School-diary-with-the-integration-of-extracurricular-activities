@@ -26,11 +26,11 @@ export default function EditLesson () {
 
   const fetchLessonDetails = () => {
     http.get(`schools/${id1}/classrooms/${id2}/lessons/${id3}`).then((res) => {
-      setLessonsName(res.data.Lessons_name)
-      setLessonsStartingTime(res.data.Lessons_starting_time)
-      setLessonsEndingTime(res.data.Lessons_ending_time)
-      setLowerGradeLimit(res.data.Lower_grade_limit)
-      setUpperGradeLimit(res.data.Upper_grade_limit)
+      setLessonsName(res.data.lessonsName)
+      setLessonsStartingTime(res.data.lessonsStartingTime)
+      setLessonsEndingTime(res.data.lessonsEndingTime)
+      setLowerGradeLimit(res.data.lowerGradeLimit)
+      setUpperGradeLimit(res.data.upperGradeLimit)
     }).catch(() => {
       navigate(-1)
     })

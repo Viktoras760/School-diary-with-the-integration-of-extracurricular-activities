@@ -81,9 +81,9 @@ const LessonDetail = ({ lesson, onDelete }) => {
                 <div className="card mb-3">
                     <div className="card-body">
 
-                        <p>Lessons name: {lesson.Lessons_name}</p>
-                        <p>Lessons starting time: {lesson.Lessons_starting_time}</p>
-                        <p>Lessons ending time: {lesson.Lessons_ending_time}</p>
+                        <p>Lessons name: {lesson.lessonsName}</p>
+                        <p>Lessons starting time: {lesson.lessonsStartingTime}</p>
+                        <p>Lessons ending time: {lesson.lessonsEndingTime}</p>
                         <Button variant="primary" className="w-100 mb-2" disabled={isLoadingApprove}>
                             {isLoadingApprove ? <><Spinner animation="border" size="sm" /> Fetching details…</> : 'Details'}
                         </Button>

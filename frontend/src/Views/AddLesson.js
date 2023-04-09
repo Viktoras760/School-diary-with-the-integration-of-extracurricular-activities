@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 export default function AddClassroom () {
   const { http } = APIController()
   const navigate = useNavigate()
-  const { id1, id2, id3 } = useParams()
+  const { id1, id2 } = useParams()
 
   const [lessonsName, setLessonsName] = useState()
   const [lessonsStartingTime, setLessonsStartingTime] = useState()
@@ -20,7 +20,7 @@ export default function AddClassroom () {
 
   const addLesson = () => {
     setLoading(true)
-    http.post(`/schools/${id1}/floors/${id2}/classrooms/${id3}/lessons`, { Lessons_name: lessonsName, Lessons_starting_time: lessonsStartingTime, Lessons_ending_time: lessonsEndingTime, Lower_grade_limit: lowerGradeLimit, Upper_grade_limit: upperGradeLimit }).then((res) => {
+    http.post(`/schools/${id1}/classrooms/${id2}/lessons`, { lessonsName, lessonsStartingTime, lessonsEndingTime, lowerGradeLimit, upperGradeLimit }).then((res) => {
       sessionStorage.setItem('post-success', res.data.success)
       navigate(-1)
     }).catch((error) => {
