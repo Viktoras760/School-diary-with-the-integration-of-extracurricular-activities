@@ -41,7 +41,7 @@ export default function EditClassroom () {
   const updateClassroom = () => {
     setLoading(true)
     console.log(number, pupilCapacity, musicalEquipment, chemistryEquipment, computers)
-    http.put(`schools/${id1}/classrooms/${id2}`, { number, floorNumber, pupilCapacity, musicalEquipment, chemistryEquipment, computers }).then(() => {
+    http.put(`schools/${id1}/classrooms/${id2}`, { number, floorNumber, pupilCapacity, musicalEquipment: musicalEquipment === 'Yes' ? '1' : '2', chemistryEquipment: chemistryEquipment === 'Yes' ? '1' : '2', computers: computers === 'Yes' ? '1' : '2' }).then(() => {
       sessionStorage.setItem('post-success', 'Classroom was successfully updated')
       navigate(-1)
     }).catch((error) => {
@@ -115,14 +115,15 @@ export default function EditClassroom () {
                                 <option value="2" >No</option>
                             </Form.Select>
                         </Form.Group>
-                        <Form.Group className="mb-3" controlId="formBasicComputers">
-                            <Form.Label>Computers</Form.Label>
-                            <Form.Select className="mb-3" defaultValue={computers} onChange={e => setComputers(e.target.value)}>
-                                <option value={computers === 'Yes' ? 1 : 2 } >{computers}</option>
-                                <option value="1" >Yes</option>
-                                <option value="2" >No</option>
-                            </Form.Select>
-                        </Form.Group>
+                      <Form.Group className="mb-3" controlId="formBasicComputers">
+                        <Form.Label>Computers</Form.Label>
+                        <Form.Select className="mb-3" defaultValue={computers} onChange={e => setComputers(e.target.value)}>
+                          <option value={computers}>{computers}</option>
+                          <option value="1">Yes</option>
+                          <option value="2">No</option>
+                        </Form.Select>
+                      </Form.Group>
+
                       <Button variant="primary" type="submit" disabled={isLoading} onClick={!isLoading ? updateClassroom : null}>
                         {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Edit'}
                       </Button>
