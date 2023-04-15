@@ -80,7 +80,7 @@ const LessonDetail = ({ lesson, onDelete }) => {
               <Modal.Header closeButton>
                   <Modal.Title>Delete lesson</Modal.Title>
               </Modal.Header>
-              <Modal.Body>Are you sure you want to delete lesson {lesson.Lessons_name}?</Modal.Body>
+              <Modal.Body>Are you sure you want to delete lesson {lesson.lessonsName}?</Modal.Body>
               <Modal.Footer>
                   <Button variant="danger" onClick={handleSubmit}>
                       Delete
@@ -148,7 +148,6 @@ function LessonList () {
   const fetchLessons = () => {
     http.get(`/schools/${id1}/classrooms/${id2}/lessons`).then((res) => {
       setLessons(res.data)
-      console.log(res.data)
     })
   }
 

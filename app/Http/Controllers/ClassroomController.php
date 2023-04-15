@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ClassroomStoreUpdateRequest;
 use App\Services\ClassroomService;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\School;
 use App\Models\Classroom;
@@ -21,7 +22,7 @@ class ClassroomController extends Controller
     $this->middleware('auth:api', ['except' => []]);
   }
 
-  function store(ClassroomStoreUpdateRequest $req, $idSchool)
+  function store(ClassroomStoreUpdateRequest $req, $idSchool): JsonResponse|bool|Classroom
   {
     $data = $req->validated();
 
@@ -40,7 +41,7 @@ class ClassroomController extends Controller
     }
   }
 
-  function update($idSchool, $idClassroom, ClassroomStoreUpdateRequest $request)
+  function update($idSchool, $idClassroom, ClassroomStoreUpdateRequest $request): JsonResponse|bool
   {
     $data = $request->validated();
     try {
@@ -72,7 +73,7 @@ class ClassroomController extends Controller
     }
   }
 
-  function destroy($idSchool, $idClassroom)
+  function destroy($idSchool, $idClassroom): JsonResponse|bool
   {
     try {
       $handle = $this->classroomService->classroomsErrorHandler($idSchool);

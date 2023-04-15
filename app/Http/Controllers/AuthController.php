@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
-use PHPOpenSourceSaver\JWTAuth\JWTAuth;
-use App\Models\Lesson;
-use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
-use App\Http\Controllers\UserController;
 
 
 class AuthController extends Controller
@@ -71,7 +68,7 @@ class AuthController extends Controller
 
     }
 
-    public function login(Request $request): \Illuminate\Http\JsonResponse
+    public function login(Request $request): JsonResponse
     {
         //validating credentials
         $request->validate([
@@ -89,8 +86,8 @@ class AuthController extends Controller
         }
 
         //getting user
-        $user = \App\Models\User::where('email','=',$request->email)->get();
-        $iat = \App\Models\User::where('email','=',$request->email)->get('iat');
+        $user = User::where('email','=',$request->email)->get();
+        $iat = User::where('email','=',$request->email)->get('iat');
         if(!$user) {
             return response()->json(['error' => 'User not found'], 404);
         }
@@ -103,16 +100,16 @@ class AuthController extends Controller
             Auth::attempt();
             $token = Auth::attempt($credentials);
             $payload = AuthController::payloadEncoding($token);
-            $user = \App\Models\User::where('email','=',$request->email)->update([
+            $user = User::where('email','=',$request->email)->update([
                 'iat' => $payload['iat']
             ]);
         }
 
-        $iat = \App\Models\User::where('email','=',$request->email)->find('iat');
+        $iat = User::where('email','=',$request->email)->find('iat');
         if($payload['iat']!= $iat)
         {
             Auth::attempt();
-            $user = \App\Models\User::where('email','=',$request->email)->update([
+            $user = User::where('email','=',$request->email)->update([
                 'iat' => $payload['iat']
             ]);
         }
@@ -127,7 +124,7 @@ class AuthController extends Controller
 
     }
 
-    public function register(Request $request): \Illuminate\Http\JsonResponse
+    public function register(Request $request): JsonResponse
     {
         $validator = Validator::make(request(['name', 'email', 'password']), [
             'name' => 'required|string|max:255',
@@ -139,18 +136,29 @@ class AuthController extends Controller
             return response()->json(['errors' => $validator->errors()], 401);
         }
 
-        $user = User::create([
+        if ($request->CV) {
+          $user = User::create([
             'name' => $request->name,
             'surname' => $request->surname,
-            'personalCode'=> $request->personalCode,
+            'personalCode' => $request->personalCode,
+            'email' => $request->email,
+            'CV' => $request->CV,
+            'password' => Hash::make($request->password),
+          ]);
+        } else {
+          $user = User::create([
+            'name' => $request->name,
+            'surname' => $request->surname,
+            'personalCode' => $request->personalCode,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-        ]);
+          ]);
+        }
 
         return response()->json(['success' => 'User created successfully'], 200);
     }
 
-    public function logout(): \Illuminate\Http\JsonResponse
+    public function logout(): JsonResponse
     {
         auth()->user()->update([
             'iat' => NULL
@@ -162,7 +170,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function refresh(): \Illuminate\Http\JsonResponse
+    public function refresh(): JsonResponse
     {
         return response()->json([
             'status' => 'success',
@@ -177,7 +185,7 @@ class AuthController extends Controller
     /**
      * Get the authenticated User.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function me()
     {

@@ -243,7 +243,7 @@ class LessonService
 
   public function userLessonsErrorHandler(): bool|JsonResponse
   {
-    if (User::find(auth()->user()->id_User ?? null)->lessons() == null) {
+    if (count(User::find(auth()->user()->id_User ?? null)->lessons()->get()) < 1) {
       return response()->json(['error' => 'User has no lessons'], 404);
     }
     return false;

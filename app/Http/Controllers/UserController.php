@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\Lesson;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserController extends Controller
 {
@@ -104,4 +105,24 @@ class UserController extends Controller
       return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }
   }
+
+  function getUserCV($id): StreamedResponse|JsonResponse
+  {
+    try {
+      $user = User::find($id);
+      $pdfData = $user->CV;
+
+      $headers = [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'attachment; filename="' . $user->name . '_CV.pdf"',
+      ];
+
+      return response()->streamDownload(function () use ($pdfData) {
+        echo $pdfData;
+      }, $user->name . '_CV.pdf', $headers);
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
+    }
+  }
+
 }

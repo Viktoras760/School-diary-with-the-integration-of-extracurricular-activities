@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 function UserList () {
   const navigate = useNavigate()
   const { http } = APIController()
-  const [Users, setUsers] = useState('')
+  const [Users, setUsers] = useState([])
 
   useEffect(() => {
     fetchUsers()
@@ -32,6 +32,20 @@ function UserList () {
     navigate('/users/')
   }
 
+  const downloadCV = (e, id) => {
+    http.get(`/users/${id}/CV`, { responseType: 'blob' }).then((res) => {
+      const url = window.URL.createObjectURL(new Blob([res.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `${res.headers['content-disposition'].split('"')[1]}`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }).catch(() => {
+      alert('Failed to download CV')
+    })
+  }
+
   return (
         <div>
           <div className="container">
@@ -53,6 +67,7 @@ function UserList () {
                         <th scope="col">Role</th>
                         <th scope="col">Edit</th>
                         <th scope="col">Delete</th>
+                        <th scope="col">Download CV</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -79,6 +94,21 @@ function UserList () {
                               Delete
                             </button>
                           </td>
+                          {(val.role === 'Teacher' &&
+                          <td>
+                            <button
+                              className="btn btn-warning"
+                              onClick={(e) => downloadCV(e, val.id_User)}
+                            >
+                              Download CV
+                            </button>
+                          </td>
+                          )}
+                          {((val.role !== 'Teacher' || val.role === null) &&
+                            <td>
+
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>

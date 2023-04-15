@@ -22,8 +22,8 @@ export default function AddClassroom () {
 
   const addClassroom = () => {
     setLoading(true)
-    http.post(`/schools/${id1}/classrooms`, { number, floorNuber: floor, pupilCapacity, musicalEquipment, chemistryEquipment, computers }).then((res) => {
-      sessionStorage.setItem('post-success', res.data.success)
+    http.post(`/schools/${id1}/classrooms`, { number, floorNumber: floor, pupilCapacity, musicalEquipment, chemistryEquipment, computers }).then(() => {
+      sessionStorage.setItem('post-success', 'Classroom was successfully added')
       navigate(-1)
     }).catch((error) => {
       if (error.response.data.error != null) {
@@ -79,11 +79,11 @@ export default function AddClassroom () {
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicMusicalEquipment">
                             <Form.Label>Musical equipment</Form.Label>
-                            <Form.Select className="mb-3" defaultValue={musicalEquipment} onChange={e => setMusicalEquipment(e.target.value)}>
-                                <option value={musicalEquipment} >{musicalEquipment}</option>
-                                <option value="1" >Yes</option>
-                                <option value="2" >No</option>
-                            </Form.Select>
+                      <Form.Select className="mb-3" defaultValue={musicalEquipment} onChange={e => setMusicalEquipment(e.target.value)}>
+                        <option value={musicalEquipment}> {musicalEquipment}</option>
+                        <option value="1">Yes</option>
+                        <option value="2">No</option>
+                      </Form.Select>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicChemistryEquipment">
                             <Form.Label>Chemical equipment</Form.Label>

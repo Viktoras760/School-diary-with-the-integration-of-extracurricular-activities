@@ -31,9 +31,9 @@ class ClassroomStoreUpdateRequest extends FormRequest
       'number' => 'required|integer|max:999|min:1',
       'floorNumber' => 'required|integer|max:20|min:1',
       'pupilCapacity' => 'required|integer|max:99|min:1',
-      'musicalEquipment' => 'boolean',
-      'chemistryEquipment' => 'boolean',
-      'computers' => 'boolean'
+      'musicalEquipment' => 'required|in:1,2',
+      'chemistryEquipment' => 'required|in:1,2',
+      'computers' => 'required|in:1,2'
     ];
   }
 }

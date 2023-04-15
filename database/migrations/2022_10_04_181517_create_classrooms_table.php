@@ -13,9 +13,9 @@ return new class extends Migration
 		$table->integer('number');
     $table->integer('floorNumber');
 		$table->integer('pupilCapacity');
-		$table->enum('musicalEquipment',['Yra', 'Nėra'])->nullable();
-		$table->enum('chemistryEquipment',['Yra', 'Nėra'])->nullable();
-		$table->enum('computers',['Yra', 'Nėra'])->nullable();
+		$table->enum('musicalEquipment',['Yes', 'No'])->nullable();
+		$table->enum('chemistryEquipment',['Yes', 'No'])->nullable();
+		$table->enum('computers',['Yes', 'No'])->nullable();
 		$table->integer('id_Classroom',true);
 		$table->integer('fk_Schoolid_School');
 

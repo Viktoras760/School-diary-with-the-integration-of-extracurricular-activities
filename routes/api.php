@@ -29,6 +29,7 @@ Route::group([
     'middleware' => 'api'
 ], function ($router) {
   Route::get('school_users/', [UserController::class, 'getSchoolUsers']);
+  Route::get('users/{id}/CV', [UserController::class, 'getUserCV']);
   $router->apiResource('users', UserController::class);
 });
 

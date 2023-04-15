@@ -43,7 +43,7 @@ export default function EditUser () {
 
   const fetchUserDetails = () => {
     http
-      .get(`/user/${id}`)
+      .get(`/users/${id}`)
       .then((res) => {
         setName(res.data.name)
         setSurname(res.data.surname)
@@ -87,7 +87,7 @@ export default function EditUser () {
         fk_Schoolid_School: schoolId
       })
       .then((res) => {
-        sessionStorage.setItem('post-success', res.data.success)
+        sessionStorage.setItem('post-success', 'User was successfully updated')
         navigate('/users')
       })
       .catch((error) => {

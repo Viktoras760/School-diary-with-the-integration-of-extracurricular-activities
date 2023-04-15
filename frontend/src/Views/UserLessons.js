@@ -57,7 +57,7 @@ const LessonDetail = ({ lesson, onDelete }) => {
                 <Modal.Header closeButton>
                     <Modal.Title>Unregister from lesson</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>Are you sure you want to unregister from {lesson.Lessons_name}?</Modal.Body>
+                <Modal.Body>Are you sure you want to unregister from {lesson.lessonsName}?</Modal.Body>
                 <Modal.Footer>
                     <Button variant="danger" onClick={handleSubmit}>
                         Unregister

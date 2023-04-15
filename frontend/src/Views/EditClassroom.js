@@ -11,6 +11,7 @@ export default function EditClassroom () {
   const { id1, id2 } = useParams()
 
   const [number, setNumber] = useState()
+  const [floorNumber, setFloorNumber] = useState()
   const [pupilCapacity, setPupilCapacity] = useState()
   const [musicalEquipment, setMusicalEquipment] = useState()
   const [chemistryEquipment, setChemistryEquipment] = useState()
@@ -27,6 +28,7 @@ export default function EditClassroom () {
   const fetchClassroomDetails = () => {
     http.get(`schools/${id1}/classrooms/${id2}`).then((res) => {
       setNumber(res.data.number)
+      setFloorNumber(res.data.floorNumber)
       setPupilCapacity(res.data.pupilCapacity)
       setMusicalEquipment(res.data.musicalEquipment)
       setChemistryEquipment(res.data.chemistryEquipment)
@@ -38,8 +40,9 @@ export default function EditClassroom () {
 
   const updateClassroom = () => {
     setLoading(true)
-    http.put(`schools/${id1}/classrooms/${id2}`, { number, pupilCapacity, musicalEquipment, chemistryEquipment, computers }).then((res) => {
-      sessionStorage.setItem('post-success', res.data.success)
+    console.log(number, pupilCapacity, musicalEquipment, chemistryEquipment, computers)
+    http.put(`schools/${id1}/classrooms/${id2}`, { number, floorNumber, pupilCapacity, musicalEquipment, chemistryEquipment, computers }).then(() => {
+      sessionStorage.setItem('post-success', 'Classroom was successfully updated')
       navigate(-1)
     }).catch((error) => {
       if (error.response.data.error != null) {
@@ -55,6 +58,11 @@ export default function EditClassroom () {
     }).finally(() => {
       setLoading(false)
     })
+  }
+
+  const goBack = () => {
+    setLoading(true)
+    navigate(-1)
   }
 
   function ErrorAlert ({ message }) {
@@ -110,14 +118,17 @@ export default function EditClassroom () {
                         <Form.Group className="mb-3" controlId="formBasicComputers">
                             <Form.Label>Computers</Form.Label>
                             <Form.Select className="mb-3" defaultValue={computers} onChange={e => setComputers(e.target.value)}>
-                                <option value={computers} >{computers}</option>
+                                <option value={computers === 'Yes' ? 1 : 2 } >{computers}</option>
                                 <option value="1" >Yes</option>
                                 <option value="2" >No</option>
                             </Form.Select>
                         </Form.Group>
-                        <Button variant="primary" type="submit" disabled={isLoading} onClick={!isLoading ? updateClassroom : null}>
-                            {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Edit'}
-                        </Button>
+                      <Button variant="primary" type="submit" disabled={isLoading} onClick={!isLoading ? updateClassroom : null}>
+                        {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Edit'}
+                      </Button>
+                      <Button variant="secondary" disabled={isLoading} onClick={!isLoading ? goBack : null} style={{ marginTop: '10px', backgroundColor: 'gray' }}>
+                        {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Cancel'}
+                      </Button>
                     </Card>
                 </Col>
             </Row>

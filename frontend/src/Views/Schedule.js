@@ -56,7 +56,7 @@ const LessonDetail2 = ({ lesson, onDelete }) => {
                 <Modal.Header closeButton>
                     <Modal.Title>Delete lesson</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>Are you sure you want to delete {lesson.Lessons_name}?</Modal.Body>
+                <Modal.Body>Are you sure you want to delete {lesson.lessonsName}?</Modal.Body>
                 <Modal.Footer>
                     <Button variant="danger" onClick={handleSubmit}>
                         Delete

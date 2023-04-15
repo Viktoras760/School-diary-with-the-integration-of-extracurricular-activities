@@ -84,7 +84,7 @@ const ClassroomDetail = ({ classroom, onDelete }) => {
                     <Modal.Header closeButton>
                         <Modal.Title>Delete classroom</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body>Are you sure you want to delete classroom Nr.{classroom.Number}?</Modal.Body>
+                    <Modal.Body>Are you sure you want to delete classroom Nr.{classroom.number}?</Modal.Body>
                     <Modal.Footer>
                         <Button variant="danger" onClick={handleSubmit}>
                             Delete
@@ -116,7 +116,7 @@ const ClassroomDetail = ({ classroom, onDelete }) => {
                             alt={'empty classroom'}
                         ></img>
                         <p style={{ color: '#1B3D6C', margin: 20, fontSize: 20, fontFamily: 'Playfair Display' }}>
-                            Classroom number: {classroom.Number}
+                            Classroom number: {classroom.number}
                         </p>
                         <p style={{ color: '#1B3D6C', margin: 20, fontSize: 20, fontFamily: 'Playfair Display' }}>Classroom pupil capacity: {classroom.pupilCapacity}</p>
                       <Button variant="primary" className="w-100 mb-2" disabled={isLoadingApprove} onClick={!isLoadingDelete ? Lessons : null}>
@@ -169,12 +169,18 @@ function ClassroomList () {
   function SuccessAlert ({ message }) {
     const [show, setShow] = useState(!!message)
 
+    const handleClose = () => {
+      setShow(false)
+      setSuccessMessage(null)
+      sessionStorage.removeItem('post-success') // Remove message from sessionStorage
+    }
+
     if (show) {
       return (
-                <Alert variant="success" onClose={() => { setShow(false); setSuccessMessage(null) }} dismissible className="mt-3">
-                    <Alert.Heading>Success</Alert.Heading>
-                    <p>{message}</p>
-                </Alert>
+        <Alert variant="success" onClose={handleClose} dismissible className="mt-3">
+          <Alert.Heading>Success</Alert.Heading>
+          <p>{message}</p>
+        </Alert>
       )
     }
     return null
@@ -185,30 +191,30 @@ function ClassroomList () {
   }
 
   return (
-        <div>
-            <h1 className="mb-4 mt-4">Classrooms</h1>
-            <SuccessAlert message={successMessage} />
-            {user && (user.role === 'School Administrator' || user.role === 'System Administrator') && (
-                <div className="flex items-center">
-                    <Button variant="success" className="w-100" onClick={addClassroom}>
-                        Add new classroom
-                    </Button>
-                </div>
-            )}
-            <Row className="justify-content-center mt-3">
-                {classrooms
-                  ? (
-                      classrooms.map((classroom, index) => {
-                        return <ClassroomDetail classroom={classroom} onDelete={fetchClassrooms} key={index} />
-                      })
-                    )
-                  : (
-                    <div className="text-center">
-                        <Spinner animation="border" />
-                    </div>
-                    )}
-            </Row>
+    <div>
+      <h1 className="mb-4 mt-4">Classrooms</h1>
+      <SuccessAlert message={successMessage} />
+      {user && (user.role === 'School Administrator' || user.role === 'System Administrator') && (
+        <div className="flex items-center">
+          <Button variant="success" className="w-100" onClick={addClassroom}>
+            Add new classroom
+          </Button>
         </div>
+      )}
+      <Row className="justify-content-center mt-3">
+        {classrooms
+          ? (
+              classrooms.map((classroom, index) => {
+                return <ClassroomDetail classroom={classroom} onDelete={fetchClassrooms} key={index} />
+              })
+            )
+          : (
+            <div className="text-center">
+              <Spinner animation="border" />
+            </div>
+            )}
+      </Row>
+    </div>
   )
 }
 

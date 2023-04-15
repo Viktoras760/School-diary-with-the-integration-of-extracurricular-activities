@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import APIController from '../Controllers/APIController'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 import { Row, Col, Card, Form, Button, Spinner } from 'react-bootstrap'
 
@@ -12,6 +12,10 @@ export default function Login () {
   const [isLoading, setLoading] = useState(false)
 
   const navigate = useNavigate()
+
+  const location = useLocation()
+  const queryParams = new URLSearchParams(location.search)
+  const registered = queryParams.get('registered')
 
   const submitForm = () => {
     setLoading(true)
@@ -39,9 +43,16 @@ export default function Login () {
 
   return (
         <Row className="justify-content-center pt-5">
+          {registered && (
+            <div className="alert alert-success" role="alert">
+              Registration successful! You can now log in with your email and password.
+            </div>
+          )}
             <Col sm={6}>
+
                 <Card className="p-4">
                     <h1 className="text-center mb-3">Login</h1>
+
                     <Form.Group className="mb-3" controlId="formBasicEmail">
                         <Form.Label>Email address</Form.Label>
                         <Form.Control type="email" placeholder="Enter email" onChange={e => setEmail(e.target.value)} />
@@ -51,6 +62,11 @@ export default function Login () {
                         <Form.Label>Password</Form.Label>
                         <Form.Control type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
                     </Form.Group>
+                  {(registered === 'false' || registered === null) && (
+                    <div style={{ whiteSpace: 'nowrap' }}>
+                      <p>Do not have an account yet? <a href="/registerSelect">Sign up now!</a></p>
+                    </div>
+                  )}
                     <Button variant="primary" type="submit" disabled={isLoading} onClick={!isLoading ? submitForm : null}>
                         {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Login'}
                     </Button>

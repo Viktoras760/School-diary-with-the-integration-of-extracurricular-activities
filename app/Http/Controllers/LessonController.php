@@ -108,7 +108,7 @@ class LessonController extends Controller
     }
   }
 
-  function unregisterFromLesson($id)
+  function unregisterFromLesson($id): JsonResponse
   {
     try {
       $lesson = Lesson::find($id);
@@ -125,7 +125,7 @@ class LessonController extends Controller
     }
   }
 
-  function update(LessonStoreUpdateRequest $request, $idSchool, $idClassroom, $id)
+  function update(LessonStoreUpdateRequest $request, $idSchool, $idClassroom, $id): Lesson|JsonResponse|bool
   {
     $data = $request->validated();
 
@@ -151,7 +151,7 @@ class LessonController extends Controller
       $handle = $this->lessonService->userLessonsErrorHandler();
       if (!$handle) {
         $userLessons = User::find(auth()->user()->id_User ?? null)->lessons()->orderBy('lessonsStartingTime', 'asc')->get();
-      } else return null;
+      } else return $handle;
 
       return $userLessons;
     } catch (QueryException $e) {
