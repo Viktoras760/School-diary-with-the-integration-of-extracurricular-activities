@@ -31,8 +31,8 @@ class LessonStoreUpdateRequest extends FormRequest
       'lessonsName' => 'required|string|max:255',
       'lowerGradeLimit' => 'required|integer|max:12|min:0',
       'upperGradeLimit' => 'required|integer|max:12|min:0',
-      'lessonsStartingTime' => 'required|date|date_format:Y-m-d H:i:s',
-      'lessonsEndingTime' => 'required|date|after:lessonsStartingTime|date_format:Y-m-d H:i:s',
+      'lessonsStartingTime' => 'required|date|date_format:Y-m-d H:i',
+      'lessonsEndingTime' => 'required|date|after:lessonsStartingTime|date_format:Y-m-d H:i',
     ];
   }
 }

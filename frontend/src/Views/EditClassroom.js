@@ -40,7 +40,6 @@ export default function EditClassroom () {
 
   const updateClassroom = () => {
     setLoading(true)
-    console.log(number, pupilCapacity, musicalEquipment, chemistryEquipment, computers)
     http.put(`schools/${id1}/classrooms/${id2}`, { number, floorNumber, pupilCapacity, musicalEquipment: musicalEquipment === 'Yes' ? '1' : '2', chemistryEquipment: chemistryEquipment === 'Yes' ? '1' : '2', computers: computers === 'Yes' ? '1' : '2' }).then(() => {
       sessionStorage.setItem('post-success', 'Classroom was successfully updated')
       navigate(-1)

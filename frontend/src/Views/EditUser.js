@@ -86,7 +86,7 @@ export default function EditUser () {
         confirmation,
         fk_Schoolid_School: schoolId
       })
-      .then((res) => {
+      .then(() => {
         sessionStorage.setItem('post-success', 'User was successfully updated')
         navigate('/users')
       })
@@ -130,6 +130,11 @@ export default function EditUser () {
       console.error(error)
       return null
     }
+  }
+
+  const goBack = () => {
+    setLoading(true)
+    navigate(-1)
   }
 
   if (name || surname || email) {
@@ -213,6 +218,9 @@ export default function EditUser () {
                         <Button variant="primary" type="submit" disabled={isLoading} onClick={!isLoading ? updateUser : null}>
                             {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Edit'}
                         </Button>
+                      <Button variant="secondary" disabled={isLoading} onClick={!isLoading ? goBack : null} style={{ marginTop: '10px', backgroundColor: 'gray' }}>
+                        {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Cancel'}
+                      </Button>
                     </Card>
                 </Col>
             </Row>

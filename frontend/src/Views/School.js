@@ -55,6 +55,11 @@ export default function EditSchool () {
     })
   }
 
+  const goBack = () => {
+    setLoading(true)
+    navigate(-1)
+  }
+
   function ErrorAlert ({ message }) {
     const [show, setShow] = useState(!!message)
 
@@ -100,6 +105,9 @@ export default function EditSchool () {
                         <Button variant="primary" type="submit" disabled={isLoading} onClick={!isLoading ? updateSchool : null}>
                             {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Edit'}
                         </Button>
+                      <Button variant="secondary" disabled={isLoading} onClick={!isLoading ? goBack : null} style={{ marginTop: '10px', backgroundColor: 'gray' }}>
+                        {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Cancel'}
+                      </Button>
                     </Card>
                 </Col>
             </Row>

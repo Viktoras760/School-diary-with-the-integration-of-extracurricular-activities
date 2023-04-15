@@ -37,6 +37,11 @@ export default function EditSchool () {
     })
   }
 
+  const goBack = () => {
+    setLoading(true)
+    navigate(-1)
+  }
+
   // eslint-disable-next-line react/prop-types
   function ErrorAlert ({ message }) {
     const [show, setShow] = useState(!!message)
@@ -79,6 +84,9 @@ export default function EditSchool () {
                     <Button variant="primary" type="submit" disabled={isLoading} onClick={!isLoading ? addSchool : null}>
                         {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Add'}
                     </Button>
+                  <Button variant="secondary" disabled={isLoading} onClick={!isLoading ? goBack : null} style={{ marginTop: '10px', backgroundColor: 'gray' }}>
+                    {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Cancel'}
+                  </Button>
                 </Card>
             </Col>
         </Row>

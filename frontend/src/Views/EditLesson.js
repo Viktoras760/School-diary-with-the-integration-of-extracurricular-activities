@@ -112,7 +112,7 @@ export default function EditLesson () {
                             {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Update'}
                         </Button>
                       <Button variant="secondary" disabled={isLoading} onClick={!isLoading ? goBack : null} style={{ marginTop: '10px', backgroundColor: 'gray' }}>
-                        {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Back'}
+                        {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Cancel'}
                       </Button>
                     </Card>
                 </Col>

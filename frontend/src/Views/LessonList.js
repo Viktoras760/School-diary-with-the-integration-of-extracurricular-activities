@@ -193,7 +193,7 @@ function LessonList () {
     <div>
         <h1 className="mb-4 mt-4">Lessons</h1>
         <SuccessAlert message={successMessage} />
-        {user != null && (user.Role === 'School Administrator' || user.Role === 'System Administrator' || user.Role === 'Teacher')
+        {user != null && (user.role === 'School Administrator' || user.role === 'System Administrator' || user.role === 'Teacher')
           ? (
                 <div className="flex items-center">
                     <Button variant="success" className="w-100" onClick={addLesson}>Add new lesson

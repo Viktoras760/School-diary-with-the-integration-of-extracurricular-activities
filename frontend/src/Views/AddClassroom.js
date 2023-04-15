@@ -41,6 +41,11 @@ export default function AddClassroom () {
     })
   }
 
+  const goBack = () => {
+    setLoading(true)
+    navigate(-1)
+  }
+
   function ErrorAlert ({ message }) {
     const [show, setShow] = useState(!!message)
 
@@ -104,6 +109,9 @@ export default function AddClassroom () {
                     <Button variant="primary" type="submit" disabled={isLoading} onClick={!isLoading ? addClassroom : null}>
                         {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Add'}
                     </Button>
+                  <Button variant="secondary" disabled={isLoading} onClick={!isLoading ? goBack : null} style={{ marginTop: '10px', backgroundColor: 'gray' }}>
+                    {isLoading ? <><Spinner animation="border" size="sm" /> Loading…</> : 'Cancel'}
+                  </Button>
                 </Card>
             </Col>
         </Row>
