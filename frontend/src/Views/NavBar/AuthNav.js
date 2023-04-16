@@ -1,6 +1,5 @@
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import Home from '../Home'
-import Dashboard from '../Dashboard'
 import UserLessons from '../UserLessons'
 import SchoolList from '../Schools'
 import EditSchool from '../School'
@@ -68,9 +67,6 @@ function Auth () {
                             <LinkContainer to="/">
                                 <Nav.Link>Home</Nav.Link>
                             </LinkContainer>
-                            <LinkContainer to="/dashboard">
-                                <Nav.Link>Dashboard</Nav.Link>
-                            </LinkContainer>
                             {userdetail.fk_Schoolid_School != null
                               ? <>
                             <LinkContainer to={`/schools/${userdetail.fk_Schoolid_School}/classrooms`}>
@@ -109,7 +105,6 @@ function Auth () {
             <Container>
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/lessons" element={<UserLessons />} />
                     <Route path="/schedule" element={<Schedule />} />
                     <Route path="/schools" element={<SchoolList />} />

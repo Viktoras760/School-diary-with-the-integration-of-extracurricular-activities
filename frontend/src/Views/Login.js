@@ -21,7 +21,7 @@ export default function Login () {
     setLoading(true)
     http.post('/auth/iat', { email, password }).then((res) => {
       setToken(res.data.user, res.data.access_token)
-      navigate('/dashboard')
+      navigate('/')
       window.location.reload(false)
     }).catch((error) => {
       if (error.response.data.error != null) {
