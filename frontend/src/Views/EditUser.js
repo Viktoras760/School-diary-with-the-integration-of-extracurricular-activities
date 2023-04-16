@@ -87,7 +87,6 @@ export default function EditUser () {
         fk_Schoolid_School: schoolId
       })
       .then(() => {
-        sessionStorage.setItem('post-success', 'User was successfully updated')
         navigate('/users')
       })
       .catch((error) => {

@@ -38,8 +38,8 @@ export default function EditLesson () {
 
   const updateLesson = () => {
     setLoading(true)
-    http.put(`schools/${id1}/classrooms/${id3}/lessons/${id3}`, { lessonsName, lessonsStartingTime, lessonsEndingTime, lowerGradeLimit, UpperGradeLimit: upperGradeLimit }).then((res) => {
-      sessionStorage.setItem('post-success', res.data.success)
+    http.put(`schools/${id1}/classrooms/${id3}/lessons/${id3}`, { lessonsName, lessonsStartingTime, lessonsEndingTime, lowerGradeLimit, UpperGradeLimit: upperGradeLimit }).then(() => {
+      sessionStorage.setItem('post-success', 'Lesson updated successfully')
       navigate(-1)
     }).catch((error) => {
       if (error.response.data.error != null) {

@@ -20,8 +20,8 @@ export default function AddClassroom () {
 
   const addLesson = () => {
     setLoading(true)
-    http.post(`/schools/${id1}/classrooms/${id2}/lessons`, { lessonsName, lessonsStartingTime, lessonsEndingTime, lowerGradeLimit, upperGradeLimit }).then((res) => {
-      sessionStorage.setItem('post-success', res.data.success)
+    http.post(`/schools/${id1}/classrooms/${id2}/lessons`, { lessonsName, lessonsStartingTime, lessonsEndingTime, lowerGradeLimit, upperGradeLimit }).then(() => {
+      sessionStorage.setItem('post-success', 'Lesson added successfully')
       navigate(-1)
     }).catch((error) => {
       if (error.response.data.error != null) {

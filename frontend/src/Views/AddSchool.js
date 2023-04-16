@@ -18,8 +18,7 @@ export default function EditSchool () {
 
   const addSchool = () => {
     setLoading(true)
-    http.post('/schools/', { name, address, pupilAmount, teacherAmount }).then((res) => {
-      sessionStorage.setItem('post-success', res.data.success)
+    http.post('/schools/', { name, address, pupilAmount, teacherAmount }).then(() => {
       navigate('/schools')
     }).catch((error) => {
       if (error.response.data.error != null) {

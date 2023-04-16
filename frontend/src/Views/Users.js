@@ -22,7 +22,6 @@ function UserList () {
 
   const DeleteUser = async (e, id) => {
     http.delete(`/users/${id}`, {
-
     }).then(() => {
       window.location.reload()
     }).catch(() => {

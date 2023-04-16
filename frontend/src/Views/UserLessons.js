@@ -128,7 +128,7 @@ const LessonDetail = ({ lesson, onDelete }) => {
 function UserLessons () {
   const { http } = APIController()
   const [lessonDetails, setLessonDetails] = useState(null)
-  const [successMessage, setSuccessMessage] = useState(sessionStorage.getItem('post-success'))
+  const [successMessage] = useState(sessionStorage.getItem('post-success'))
   const navigate = useNavigate()
   const [, setLoading] = useState(false)
 
@@ -167,24 +167,31 @@ function UserLessons () {
     })
   }
 
-  function SuccessAlert ({ message }) {
-    const [show, setShow] = useState(!!message)
+  function SuccessAlert () {
+    const [show, setShow] = useState(false)
+    const successMessage = sessionStorage.getItem('post-success')
+
+    useEffect(() => {
+      if (successMessage) {
+        setShow(true)
+      }
+    }, [successMessage])
+
+    const handleClose = () => {
+      setShow(false)
+      sessionStorage.removeItem('post-success')
+    }
 
     if (show) {
-      sessionStorage.removeItem('post-success')
       return (
-        <Alert variant="success" onClose={() => {
-          setShow(false)
-          setSuccessMessage()
-        }} dismissible className="mt-3">
+        <Alert variant="success" onClose={handleClose} dismissible className="mt-3">
           <Alert.Heading>Success</Alert.Heading>
-          <p>
-            {message}
-          </p>
+          <p>{successMessage}</p>
         </Alert>
       )
     }
-    return (<></>)
+
+    return null
   }
 
   function handlePreviousWeek () {
