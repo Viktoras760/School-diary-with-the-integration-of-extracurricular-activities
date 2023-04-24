@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-use Validator;
-use JWTAuth;
-use App\Models\Lesson;
-use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
-use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Validator;
 
 
 class AuthController extends Controller
@@ -21,7 +18,7 @@ class AuthController extends Controller
         $this->middleware('auth:api', ['except' => ['login','register']]);
     }
 
-    public function loggedIn()
+    public function loggedIn(): bool
     {
         if (auth()->user())
         return True;
@@ -31,14 +28,14 @@ class AuthController extends Controller
     public function authRole()
     {
         $log = AuthController::loggedIn();
-        if ($log == True)
+        if ($log)
         {
-            return auth()->user()->Role;
+            return auth()->user()->role;
         }
         else return response()->json([
             'status' => 'error',
             'message' => 'Unauthorized',
-        ], 401); 
+        ], 401);
     }
 
     public function payloadEncoding($token)
@@ -52,14 +49,14 @@ class AuthController extends Controller
         } catch (Throwable $e) {
             throw new JwtServiceException('Provided JWT is invalid.', $e);
         }
-        
+
         if (
             !($header = base64_decode($header))
             || !($payload = base64_decode($payload))
         ) {
             throw new JwtServiceException('Provided JWT can not be decoded from base64.');
         }
-        
+
         if (
             empty(($header = json_decode($header, true)))
             || empty(($payload = json_decode($payload, true)))
@@ -71,7 +68,7 @@ class AuthController extends Controller
 
     }
 
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         //validating credentials
         $request->validate([
@@ -79,8 +76,6 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
         $credentials = $request->only('email', 'password');
-
-        
         //getting user token
         $token = Auth::attempt($credentials);
         if (!$token) {
@@ -91,8 +86,8 @@ class AuthController extends Controller
         }
 
         //getting user
-        $user = \App\Models\User::where('email','=',$request->email)->get();
-        $iat = \App\Models\User::where('email','=',$request->email)->get('iat');
+        $user = User::where('email','=',$request->email)->get();
+        $iat = User::where('email','=',$request->email)->get('iat');
         if(!$user) {
             return response()->json(['error' => 'User not found'], 404);
         }
@@ -105,35 +100,34 @@ class AuthController extends Controller
             Auth::attempt();
             $token = Auth::attempt($credentials);
             $payload = AuthController::payloadEncoding($token);
-            $user = \App\Models\User::where('email','=',$request->email)->update([
+            $user = User::where('email','=',$request->email)->update([
                 'iat' => $payload['iat']
             ]);
         }
 
-        $iat = \App\Models\User::where('email','=',$request->email)->find('iat');
+        $iat = User::where('email','=',$request->email)->find('iat');
         if($payload['iat']!= $iat)
         {
             Auth::attempt();
-            $user = \App\Models\User::where('email','=',$request->email)->update([
+            $user = User::where('email','=',$request->email)->update([
                 'iat' => $payload['iat']
             ]);
         }
 
         $user = Auth::user();
-        return response()->json([
-                'status' => 'success',
-                'user' => $user,
-                'authorisation' => [
-                    'token' => $token,
-                    'type' => 'bearer',
-                ]
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => auth()->factory()->getTTL() * 60,
+                'user' => auth()->user()
             ]);
 
     }
 
-    public function register(Request $request){
-        $validator = Validator::make(request(['Name', 'email', 'password']), [
-            'Name' => 'required|string|max:255',
+    public function register(Request $request): JsonResponse
+    {
+        $validator = Validator::make(request(['name', 'email', 'password']), [
+            'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:user',
             'password' => 'required|string|min:6',
         ]);
@@ -142,28 +136,29 @@ class AuthController extends Controller
             return response()->json(['errors' => $validator->errors()], 401);
         }
 
-        $user = User::create([
-            'Name' => $request->Name,
-            'Surname' => $request->Surname,
-            'Personal_code'=> $request->Personal_code,
+        if ($request->CV) {
+          $user = User::create([
+            'name' => $request->name,
+            'surname' => $request->surname,
+            'personalCode' => $request->personalCode,
+            'email' => $request->email,
+            'CV' => $request->CV,
+            'password' => Hash::make($request->password),
+          ]);
+        } else {
+          $user = User::create([
+            'name' => $request->name,
+            'surname' => $request->surname,
+            'personalCode' => $request->personalCode,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-        ]);
-        
+          ]);
+        }
 
-        $token = Auth::login($user);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User created successfully',
-            'user' => $user,
-            'authorisation' => [
-                'token' => $token,
-                'type' => 'bearer',
-            ]
-        ]);
+        return response()->json(['success' => 'User created successfully'], 200);
     }
 
-    public function logout()
+    public function logout(): JsonResponse
     {
         auth()->user()->update([
             'iat' => NULL
@@ -175,7 +170,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function refresh()
+    public function refresh(): JsonResponse
     {
         return response()->json([
             'status' => 'success',
@@ -190,7 +185,7 @@ class AuthController extends Controller
     /**
      * Get the authenticated User.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function me()
     {

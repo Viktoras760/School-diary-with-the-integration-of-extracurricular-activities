@@ -10,14 +10,14 @@ return new class extends Migration
     {
         Schema::create('lesson', function (Blueprint $table) {
 
-		$table->string('Lessons_name');
-		$table->dateTimeTz('Lessons_starting_time');
-        $table->dateTimeTz('Lessons_ending_time');
+		$table->string('lessonsName');
+		$table->dateTimeTz('lessonsStartingTime');
+        $table->dateTimeTz('lessonsEndingTime');
 		$table->integer('id_Lesson',true);
-        $table->integer('Lower_grade_limit');
-        $table->integer('Upper_grade_limit');
+        $table->integer('lowerGradeLimit');
+        $table->integer('upperGradeLimit');
 		$table->integer('fk_Classroomid_Classroom');
-        $table->integer('creator_id');
+        $table->integer('creatorId');
         });
     }
 

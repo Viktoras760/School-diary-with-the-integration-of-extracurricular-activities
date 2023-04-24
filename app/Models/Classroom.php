@@ -14,18 +14,16 @@ class Classroom extends Model
     protected $primaryKey = 'id_Classroom';
 
     protected $fillable = [
-        'Number',
-        'Pupil_capacity',
-        'Musical_equipment',
-        'Chemistry_equipment',
-        'Computers',
-        'fk_Floorid_Floor'
+        'number',
+        'floorNumber',
+        'pupilCapacity',
+        'musicalEquipment',
+        'chemistryEquipment',
+        'computers',
+        'fk_Schoolid_School'
     ];
 
     protected $hidden = [
-        'Musical_equipment',
-        'Chemistry_equipment',
-        'Computers'
     ];
 
     public $timestamps=false;
@@ -35,8 +33,8 @@ class Classroom extends Model
         return $this->belongsToMany('App\Models\Lesson', 'fk_Classroomid_Classroom', 'id_Classroom');
     }
 
-    public function floor()
+    public function school()
     {
-        return $this->hasOne('App\Models\Floor', 'id_Floor', 'fk_Floorid_Floor');
+        return $this->hasOne('App\Models\School', 'id_School', 'fk_Schoolid_School');
     }
 }

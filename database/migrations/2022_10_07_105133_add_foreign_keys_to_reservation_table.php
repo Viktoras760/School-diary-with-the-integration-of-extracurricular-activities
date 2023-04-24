@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('lesson', function (Blueprint $table) {
             $table->foreign(['fk_Classroomid_Classroom'], 'Lesson_BelongsTo_Classroom')->references(['id_Classroom'])->on('classroom');
-            $table->foreign(['creator_id'], 'Lesson_BelongsTo_Creator')->references(['id_User'])->on('user');
+            $table->foreign(['creatorId'], 'Lesson_BelongsTo_Creator')->references(['id_User'])->on('user');
             //$table->foreign(['fk_Userid_User'], 'Lesson_CreatedBy_User')->references(['id_User'])->on('user');
         });
     }
