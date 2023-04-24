@@ -116,7 +116,6 @@ class AuthController extends Controller
 
     $user = Auth::user();
     $expiresIn = auth()->factory()->getTTL() * 60;
-    dd($user, $expiresIn);
 
     return response()->json([
       'access_token' => $token,
