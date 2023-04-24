@@ -100,15 +100,16 @@ class AuthController extends Controller
             Auth::attempt();
             $token = Auth::attempt($credentials);
             $payload = AuthController::payloadEncoding($token);
-            $user = User::where('email','=',$request->email)->update([
+            User::where('email','=',$request->email)->update([
                 'iat' => $payload['iat']
             ]);
         }
 
+        $iat = $iat[0]['iat'];
         if($payload['iat']!= $iat)
         {
             Auth::attempt();
-            $user = User::where('email','=',$request->email)->update([
+            User::where('email','=',$request->email)->update([
                 'iat' => $payload['iat']
             ]);
         }
