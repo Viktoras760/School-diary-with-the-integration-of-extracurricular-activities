@@ -105,7 +105,6 @@ class AuthController extends Controller
             ]);
         }
 
-        $iat = User::where('email','=',$request->email)->find('iat');
         if($payload['iat']!= $iat)
         {
             Auth::attempt();
