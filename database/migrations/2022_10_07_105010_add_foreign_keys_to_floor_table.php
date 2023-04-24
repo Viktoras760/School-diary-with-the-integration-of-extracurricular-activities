@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('floor', function (Blueprint $table) {
-            $table->foreign(['fk_Schoolid_School'], 'School_Has_Floor')->references(['id_School'])->on('school');
+        Schema::table('classroom', function (Blueprint $table) {
+            $table->foreign(['fk_Schoolid_School'], 'School_Has_Classroom')->references(['id_School'])->on('school');
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('floor', function (Blueprint $table) {
-            $table->dropForeign('School_Has_Floor');
+        Schema::table('classroom', function (Blueprint $table) {
+            $table->dropForeign('School_Has_Classroom');
         });
     }
 };

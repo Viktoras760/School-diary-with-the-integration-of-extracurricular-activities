@@ -14,6 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('user_lesson', function (Blueprint $table) {
+            $table->integer('mark')->nullable();
+            $table->string('comment')->nullable();
             $table->integer('fk_Userid_User');
             $table->integer('fk_Lessonid_Lesson')->index('fk_Lessonid_Lesson');
 

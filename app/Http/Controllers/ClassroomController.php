@@ -2,261 +2,111 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ClassroomStoreUpdateRequest;
+use App\Services\ClassroomService;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Models\Floor;
 use App\Models\School;
 use App\Models\Classroom;
 use App\Models\Lesson;
-use Validator;
 use App\Http\Controllers\AuthController;
 
 class ClassroomController extends Controller
 {
+  private ClassroomService $classroomService;
 
-    public function __construct()
-    {
-        $this->middleware('auth:api', ['except' => []]);
+  public function __construct(ClassroomService $classroomService)
+  {
+    $this->classroomService = $classroomService;
+    $this->middleware('auth:api', ['except' => []]);
+  }
+
+  function store(ClassroomStoreUpdateRequest $req, $idSchool): JsonResponse|bool|Classroom
+  {
+    $data = $req->validated();
+
+    try {
+      $handle = $this->classroomService->classroomsErrorHandler($idSchool);
+      $exists = $this->classroomService->classroomExistance($idSchool, $data);
+
+      if (!$handle && !$exists) {
+        return $this->classroomService->create($data, $idSchool);
+      } else {
+        return $handle ?: $exists;
+      }
+
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.create_failed')], 422);
     }
+  }
 
-    function addClassroom(Request $req, $idSchool, $idFloor)
-    {
-
-        $role = (new AuthController)->authRole();
-        if($role != 'System Administrator' && $role != 'School Administrator')
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to do that',
-            ], 401);
-        }
-
-        $floor = \App\Models\Floor::find($idFloor);
-        $school = \App\Models\School::find($idSchool);
-
-        if ($role == 'School Administrator' && $school->id_School != auth()->user()->fk_Schoolid_School)
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to add classroom at this school',
-            ], 401);
-        }
-        $schoolsFloor = \App\Models\Floor::where('fk_Schoolid_School', '=', $idSchool)->where('id_Floor', '=', $idFloor)->get();
-        $classroomEx = \App\Models\Classroom::where('fk_Floorid_Floor', '=', $idFloor)->where('Number', '=', $req->Number)->get();
-
-        if(!$school) {
-            return response()->json(['error' => 'School not found'], 404);
-        }
-        if(!$floor) {
-            return response()->json(['error' => 'Floor not found'], 404);
-        }
-
-        if (count($schoolsFloor) < 1)
-        {
-            return response()->json(['error' => 'Floor is in another school. Cannot add classroom'], 404);
-        }
-
-        if (count($classroomEx) > 0)
-        {
-            return response()->json(['error' => 'Classroom with such number already exists on this floor'], 404);
-        }
-
-        $validator = Validator::make($req->all(), [
-            'Number' => 'required|integer|max:100000|min:1',
-            'Pupil_capacity' => 'required|integer|max:500|min:1'
-
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 401);
-        }
-
-
-        $classroom = new Classroom;
-        $classroom->Number= $req->input('Number');
-        $classroom->Pupil_capacity= $req->input('Pupil_capacity');
-        $classroom->Musical_equipment= $req->input('Musical_equipment');
-        $classroom->Chemistry_equipment= $req->input('Chemistry_equipment');
-        $classroom->Computers= $req->input('Computers');
-        $classroom->fk_Floorid_Floor= $idFloor;
-        $classroom->save();
-        return $classroom;
+  function update($idSchool, $idClassroom, ClassroomStoreUpdateRequest $request): JsonResponse|bool
+  {
+    $data = $request->validated();
+    try {
+      $handle = $this->classroomService->classroomsErrorHandler($idSchool);
+      $exists = $this->classroomService->updatableClassroomExistance($idSchool, $idClassroom);
+      if (!$handle && !$exists) {
+        return $this->classroomService->update($data, $idClassroom);
+      } else {
+        return $handle ?: $exists;
+      }
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.create_failed')], 422);
     }
+  }
 
-    function updateClassroom($idSchool, $idFloor, $idClassroom, Request $request)
-    {
+  function show($idSchool, $idClassroom)
+  {
+    try {
+      $handle = $this->classroomService->classroomErrorHandler($idSchool);
+      $exists = $this->classroomService->updatableClassroomExistance($idSchool, $idClassroom);
 
-        $role = (new AuthController)->authRole();
-        if($role != 'System Administrator' && $role != 'School Administrator')
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to do that',
-            ], 401);
-        }
-        $floor = \App\Models\Floor::find($idFloor);
-        $school = \App\Models\School::find($idSchool);
-        if ($role == 'School Administrator' && $school->id_School != auth()->user()->fk_Schoolid_School)
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to update classrooms in this school',
-            ], 401);
-        }
-
-        $classroom = \App\Models\Classroom::find($idClassroom);
-        $schoolsFloor = \App\Models\Floor::where('fk_Schoolid_School', '=', $idSchool)->where('id_Floor', '=', $idFloor)->get();
-        $FloorsClassroom = \App\Models\Classroom::where('fk_Floorid_Floor', '=', $idFloor)->where('id_Classroom', '=', $idClassroom)->get();
-        if(!$school) {
-            return response()->json(['error' => 'School not found'], 404);
-        }
-        if(!$floor) {
-            return response()->json(['error' => 'Floor not found'], 404);
-        }
-        if(!$classroom) {
-            return response()->json(['error' => 'Classroom not found'], 404);
-        }
-        if (count($schoolsFloor) < 1)
-        {
-            return response()->json(['error' => 'Floor is in another school. Cannot update'], 404);
-        }
-        if (count($FloorsClassroom) < 1)
-        {
-            return response()->json(['error' => 'Classroom is on another floor. Cannot update'], 404);
-        }
-        $classroom->update([
-            'Number' => $request->Number,
-            'Pupil_capacity' => $request->Pupil_capacity,
-            'Musical_equipment' => $request->Musical_equipment,
-            'Chemistry_equipment' => $request->Chemistry_equipment,
-            'Computers' => $request->Computers
-        ]);
-        return response()->json(['success' => 'Classroom updated successfully']);
+      if (!$handle && !$exists) {
+        return Classroom::find($idClassroom);
+      } else {
+        return $handle ?: $exists;
+      }
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.create_failed')], 422);
     }
+  }
 
-    function getClassroom($idSchool, $idFloor, $idClassroom)
-    {
-        $role = (new AuthController)->authRole();
-        $floor = \App\Models\Floor::find($idFloor);
-        $school = \App\Models\School::find($idSchool);
-        if (($role == 'School Administrator' || $role == 'Teacher' || $role == 'Pupil') && $school->id_School != auth()->user()->fk_Schoolid_School)
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to get classroom in this school',
-            ], 401);
-        }
-        $classroom = \App\Models\Classroom::find($idClassroom);
-        $schoolsFloor = \App\Models\Floor::where('fk_Schoolid_School', '=', $idSchool)->where('id_Floor', '=', $idFloor)->get();
-        $FloorsClassroom = \App\Models\Classroom::where('fk_Floorid_Floor', '=', $idFloor)->where('id_Classroom', '=', $idClassroom)->get();
-        if(!$school) {
-            return response()->json(['error' => 'School not found'], 404);
-        }
-        if(!$floor) {
-            return response()->json(['error' => 'Floor not found'], 404);
-        }
-        if(!$classroom) {
-            return response()->json(['error' => 'Classroom not found'], 404);
-        }
-        if (count($schoolsFloor) < 1)
-        {
-            return response()->json(['error' => 'Floor is in another school'], 404);
-        }
-        if (count($FloorsClassroom) < 1)
-        {
-            return response()->json(['error' => 'Classroom is on another floor'], 404);
-        }
-        return $classroom;
-    }
+  function destroy($idSchool, $idClassroom): JsonResponse|bool
+  {
+    try {
+      $handle = $this->classroomService->classroomsErrorHandler($idSchool);
+      $exists = $this->classroomService->updatableClassroomExistance($idSchool, $idClassroom);
+      $lessons = $this->classroomService->classroomLessonExistance($idClassroom);
+      $classroom = Classroom::find($idClassroom);
 
-    function deleteClassroom($idSchool, $idFloor, $idClassroom)
-    {
-        $role = (new AuthController)->authRole();
-        if($role != 'System Administrator' && $role != 'School Administrator')
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to do that',
-            ], 401);
-        }
-        $floor = \App\Models\Floor::find($idFloor);
-        $school = \App\Models\School::find($idSchool);
-        if ($role == 'School Administrator' && $school->id_School != auth()->user()->fk_Schoolid_School)
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to delete classrooms in this school',
-            ], 401);
-        }
-        $lesson = \App\Models\Lesson::where('fk_Classroomid_Classroom', '=', $idClassroom)->get();
-        $classroom = \App\Models\Classroom::find($idClassroom);
-        $schoolsFloor = \App\Models\Floor::where('fk_Schoolid_School', '=', $idSchool)->where('id_Floor', '=', $idFloor)->get();
-        $FloorsClassroom = \App\Models\Classroom::where('fk_Floorid_Floor', '=', $idFloor)->where('id_Classroom', '=', $idClassroom)->get();
-        if(!$school) {
-            return response()->json(['error' => 'School not found'], 404);
-        }
-        if(!$floor) {
-            return response()->json(['error' => 'Floor not found'], 404);
-        }
-        if(!$classroom) {
-            return response()->json(['error' => 'Classroom not found'], 404);
-        }
-        if (count($schoolsFloor) < 1)
-        {
-            return response()->json(['error' => 'Floor is in another school. Cannot delete'], 404);
-        }
-        if (count($FloorsClassroom) < 1)
-        {
-            return response()->json(['error' => 'Classroom is on another floor. Cannot delete'], 404);
-        }
-        if (count($lesson) > 1)
-        {
-            return response()->json(['error' => 'Classroom has lesson(s). Cannot delete', $lesson], 404);
-        }
-
+      if (!$handle && !$exists && !$lessons) {
         $classroom->delete();
+
         return response()->json(['success' => 'Classroom deleted']);
+      } else {
+        return $handle ?: $exists ?: $lessons;
+      }
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.create_failed')], 422);
     }
+  }
 
-    function getClassroomByFloor($idSchool, $idFloor)
-    {
-        $role = (new AuthController)->authRole();
-        if($role != 'System Administrator' && $role != 'School Administrator')
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to do that',
-            ], 401);
-        }
-        $classrooms = \App\Models\Classroom::where('classroom.fk_Floorid_Floor','=',$idFloor)->get();
-
-        $floor = \App\Models\Floor::find($idFloor);
-        $school = \App\Models\School::find($idSchool);
-        if (($role == 'School Administrator' || $role == 'Teacher' || $role == 'Pupil') && $school->id_School != auth()->user()->fk_Schoolid_School)
-        {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No rights to get classrooms in this school',
-            ], 401);
-        }
-        $schoolsFloor = \App\Models\Floor::where('fk_Schoolid_School', '=', $idSchool)->where('id_Floor', '=', $idFloor)->get();
-
-
-        if(!$school) {
-            return response()->json(['error' => 'School not found'], 404);
-        }
-        if(!$floor) {
-            return response()->json(['error' => 'Floor not found'], 404);
-        }
-        if (count($schoolsFloor) < 1)
-        {
-            return response()->json(['error' => 'Floor is in another school. Cannot delete'], 404);
-        }
-        if (count($classrooms) < 1) {
-            return response()->json(['message' => 'Classrooms not found'], 404);
-        }
-        return $classrooms;
+  function index($idSchool)
+  {
+    try {
+      $handle = $this->classroomService->classroomErrorHandler($idSchool);
+      $exists = $this->classroomService->classroomsExistance($idSchool);
+      if (!$handle && !$exists) {
+        return Classroom::where('classroom.fk_Schoolid_School','=',$idSchool)->get();
+      } else {
+        return $handle ?: $exists;
+      }
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.create_failed')], 422);
     }
-
+  }
 }
 
 
