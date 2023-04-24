@@ -68,64 +68,65 @@ class AuthController extends Controller
 
     }
 
-    public function login(Request $request): JsonResponse
-    {
-        //validating credentials
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
-        $credentials = $request->only('email', 'password');
-        //getting user token
-        $token = Auth::attempt($credentials);
-        if (!$token) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Unauthorized',
-            ], 401);
-        }
-
-        //getting user
-        $user = User::where('email','=',$request->email)->get();
-        $iat = User::where('email','=',$request->email)->get('iat');
-        if(!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-
-        $payload = AuthController::payloadEncoding($token);
-
-        //Token refresh
-        if($payload == NULL || !$iat)
-        {
-            Auth::attempt();
-            $token = Auth::attempt($credentials);
-            $payload = AuthController::payloadEncoding($token);
-            User::where('email','=',$request->email)->update([
-                'iat' => $payload['iat']
-            ]);
-        }
-
-        $iat = $iat[0]['iat'];
-        if($payload['iat']!= $iat)
-        {
-            Auth::attempt();
-            User::where('email','=',$request->email)->update([
-                'iat' => $payload['iat']
-            ]);
-        }
-
-        $user = Auth::user();
-        $expiresIn = auth()->factory()->getTTL() * 60;
-
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => $expiresIn,
-            'user' => $user
-        ]);
+  public function login(Request $request): JsonResponse
+  {
+    //validating credentials
+    $request->validate([
+      'email' => 'required|string|email',
+      'password' => 'required|string',
+    ]);
+    $credentials = $request->only('email', 'password');
+    //getting user token
+    $token = Auth::attempt($credentials);
+    if (!$token) {
+      return response()->json([
+        'status' => 'error',
+        'message' => 'Unauthorized',
+      ], 401);
     }
 
-    public function register(Request $request): JsonResponse
+    //getting user
+    $user = User::where('email','=',$request->email)->first();
+    if(!$user) {
+      return response()->json(['error' => 'User not found'], 404);
+    }
+
+    $iat = $user->iat;
+
+    $payload = AuthController::payloadEncoding($token);
+
+    //Token refresh
+    if($payload == NULL || !$iat)
+    {
+      Auth::attempt();
+      $token = Auth::attempt($credentials);
+      $payload = AuthController::payloadEncoding($token);
+      User::where('email','=',$request->email)->update([
+        'iat' => $payload['iat']
+      ]);
+    }
+
+    if($payload['iat']!= $iat)
+    {
+      Auth::attempt();
+      User::where('email','=',$request->email)->update([
+        'iat' => $payload['iat']
+      ]);
+    }
+
+    $user = Auth::user();
+    $expiresIn = auth()->factory()->getTTL() * 60;
+
+    return response()->json([
+      'access_token' => $token,
+      'token_type' => 'bearer',
+      'expires_in' => $expiresIn,
+      'user' => $user,
+    ]);
+  }
+
+
+  public function register(Request $request): JsonResponse
     {
         $validator = Validator::make(request(['name', 'email', 'password']), [
             'name' => 'required|string|max:255',
