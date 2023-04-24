@@ -115,13 +115,14 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
-            return response()->json([
-                'access_token' => $token,
-                'token_type' => 'bearer',
-                'expires_in' => auth()->factory()->getTTL() * 60,
-                'user' => auth()->user()
-            ]);
+        $expiresIn = auth()->factory()->getTTL() * 60;
 
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => $expiresIn,
+            'user' => $user
+        ]);
     }
 
     public function register(Request $request): JsonResponse
