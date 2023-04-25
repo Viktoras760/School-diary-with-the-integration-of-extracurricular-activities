@@ -31,8 +31,8 @@ class UserUpdateRequest extends FormRequest
       'surname' => 'required|string|max:100|min:2',
       'personalCode' => 'required|integer|digits_between:9,15',
       'email' => 'required|email',
-      'grade' => 'required|integer|min:1|max:12',
-      'fk_Schoolid_School' => 'required|nullable',
+      'grade' => 'required|integer|min:0|max:12',
+      'fk_Schoolid_School' => 'required',
       'role' => 'required'
 
     ];
