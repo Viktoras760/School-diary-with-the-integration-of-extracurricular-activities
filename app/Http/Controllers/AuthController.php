@@ -101,7 +101,7 @@ class AuthController extends Controller
       Auth::attempt();
       $token = Auth::attempt($credentials);
       $payload = AuthController::payloadEncoding($token);
-      User::where('email','=',$request->email)->update([
+      $user = User::where('email','=',$request->email)->update([
         'iat' => $payload['iat']
       ]);
     }
@@ -109,12 +109,12 @@ class AuthController extends Controller
     if($payload['iat']!= $iat)
     {
       Auth::attempt();
-      User::where('email','=',$request->email)->update([
+      $user = User::where('email','=',$request->email)->update([
         'iat' => $payload['iat']
       ]);
     }
 
-    $user = Auth::user();
+    //$user = Auth::user();
     $expiresIn = auth()->factory()->getTTL() * 60;
 
     return response()->json([
