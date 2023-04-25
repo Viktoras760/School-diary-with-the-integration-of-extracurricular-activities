@@ -87,6 +87,7 @@ class AuthController extends Controller
 
     //getting user
     $user = User::where('email','=',$request->email)->first();
+    dump($user);
     if(!$user) {
       return response()->json(['error' => 'User not found'], 404);
     }
@@ -104,6 +105,7 @@ class AuthController extends Controller
       $user = User::where('email','=',$request->email)->update([
         'iat' => $payload['iat']
       ]);
+      dump($user, '1st');
     }
 
     if($payload['iat']!= $iat)
@@ -112,6 +114,7 @@ class AuthController extends Controller
       $user = User::where('email','=',$request->email)->update([
         'iat' => $payload['iat']
       ]);
+      dump($user, '2nd');
     }
     dd($user);
     $expiresIn = auth()->factory()->getTTL() * 60;
