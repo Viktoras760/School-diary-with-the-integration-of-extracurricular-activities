@@ -21,7 +21,7 @@ return new class extends Migration
 		$table->integer('id_User',true);
 		$table->integer('fk_Schoolid_School')->nullable();
 		$table->enum('role',['Pupil','Teacher','School Administrator','System Administrator'])->default('Pupil');
-    $table->binary('cv')->nullable();
+    $table->string('cv')->nullable();
         $table->rememberToken();
         $table->timestamps();
         });
