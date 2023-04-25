@@ -113,8 +113,6 @@ class AuthController extends Controller
         'iat' => $payload['iat']
       ]);
     }
-    $mail = auth()->user()->get('email');
-    dump($mail);
     $expiresIn = auth()->factory()->getTTL() * 60;
 
     return response()->json([
@@ -139,7 +137,7 @@ class AuthController extends Controller
         }
 
         if ($request->CV) {
-          $user = User::create([
+          User::create([
             'name' => $request->name,
             'surname' => $request->surname,
             'personalCode' => $request->personalCode,
@@ -148,7 +146,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
           ]);
         } else {
-          $user = User::create([
+          User::create([
             'name' => $request->name,
             'surname' => $request->surname,
             'personalCode' => $request->personalCode,
@@ -190,7 +188,7 @@ class AuthController extends Controller
      *
      * @return JsonResponse
      */
-    public function me()
+    public function me(): JsonResponse
     {
         return response()->json(auth()->user());
     }
