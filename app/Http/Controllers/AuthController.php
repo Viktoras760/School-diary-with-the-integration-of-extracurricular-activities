@@ -155,6 +155,7 @@ class AuthController extends Controller
             'surname' => $request->surname,
             'personalCode' => $request->personalCode,
             'email' => $request->email,
+            'CV' => null,
             'password' => Hash::make($request->password),
           ]);
         }
