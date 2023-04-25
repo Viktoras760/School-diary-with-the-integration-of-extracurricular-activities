@@ -113,6 +113,8 @@ class AuthController extends Controller
         'iat' => $payload['iat']
       ]);
     }
+
+    $user = auth()->user();
     $expiresIn = auth()->factory()->getTTL() * 60;
 
     return response()->json([
