@@ -110,16 +110,15 @@ class UserController extends Controller
   {
     try {
       $user = User::find($id);
-      $pdfData = $user->CV;
+      $pdfData = $user->cv;
 
       $headers = [
         'Content-Type' => 'application/pdf',
-        'Content-Disposition' => 'attachment; filename="' . $user->name . '_CV.pdf"',
       ];
 
       return response()->streamDownload(function () use ($pdfData) {
         echo $pdfData;
-      }, $user->name . '_CV.pdf', $headers);
+      }, $headers);
     } catch (QueryException $e) {
       return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }

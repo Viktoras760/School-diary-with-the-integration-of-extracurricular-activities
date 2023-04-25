@@ -136,13 +136,13 @@ class AuthController extends Controller
             return response()->json(['errors' => $validator->errors()], 401);
         }
 
-        if ($request->CV) {
+        if ($request->cv) {
           User::create([
             'name' => $request->name,
             'surname' => $request->surname,
             'personalCode' => $request->personalCode,
             'email' => $request->email,
-            'CV' => $request->CV,
+            'cv' => $request->cv,
             'password' => Hash::make($request->password),
           ]);
         } else {
@@ -151,7 +151,7 @@ class AuthController extends Controller
             'surname' => $request->surname,
             'personalCode' => $request->personalCode,
             'email' => $request->email,
-            'CV' => null,
+            'cv' => null,
             'password' => Hash::make($request->password),
           ]);
         }
