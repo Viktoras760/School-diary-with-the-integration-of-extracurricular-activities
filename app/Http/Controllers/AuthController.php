@@ -192,6 +192,6 @@ class AuthController extends Controller
      */
     public function me(): JsonResponse
     {
-      return response()->json(auth()->user()->load(['role', 'confirmation', 'school', 'class']));
+      return response()->json(auth()->user()->load(['role', 'confirmation', 'school', 'class1']));
     }
 }
