@@ -16,10 +16,10 @@ return new class extends Migration
       $table->integer('upperGradeLimit')->nullable()->default(12);
       $table->integer('type');
       $table->integer('id_lesson', true);
-      $table->integer('fk_nonscholasticActivityid_nonscholasticActivity');
+      $table->integer('fk_nonscholasticActivityid_nonscholasticActivity')->nullable();
       $table->integer('fk_Classroomid_Classroom');
       $table->integer('fk_Userid_User');
-      $table->integer('fk_mainLessonsid_mainLessons');
+      $table->integer('fk_mainLessonsid_mainLessons')->nullable();
 
     });
   }

@@ -14,7 +14,7 @@ return new class extends Migration
 		$table->string('surname',150);
 		$table->integer('personalCode');
 		$table->string('email',100);
-		$table->integer('grade')->nullable()->default(0);
+		$table->integer('grade')->default(0);
 		$table->string('password');
 		$table->string('speciality')->nullable()->default('NULL');
 		$table->integer('iat')->nullable()->default(0);
@@ -24,8 +24,8 @@ return new class extends Migration
 		$table->integer('role')->default(1);
 		$table->integer('confirmation')->nullable()->default(1);
 		$table->integer('id_User', true);
-		$table->integer('fk_Classid_Class');
-		$table->integer('fk_Schoolid_School');
+		$table->integer('fk_Classid_Class')->nullable();
+		$table->integer('fk_Schoolid_School')->nullable();
 
         });
     }
