@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('user', function (Blueprint $table) {
-            $table->foreign(['fk_Schoolid_School'], 'User_BelongsTo_School')->references(['id_School'])->on('school');
+        Schema::table('mainlessons', function (Blueprint $table) {
+            $table->foreign(['fk_Classid_Class'], 'mainlessons_has_mandatory_class')->references(['id_Class'])->on('class');
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('user', function (Blueprint $table) {
-            $table->dropForeign('User_BelongsTo_School');
+        Schema::table('mainlessons', function (Blueprint $table) {
+            $table->dropForeign('mainlessons_has_mandatory_class');
         });
     }
 };

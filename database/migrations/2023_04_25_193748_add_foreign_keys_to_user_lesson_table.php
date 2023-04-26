@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::table('user_lesson', function (Blueprint $table) {
-            $table->foreign(['fk_Userid_User'], 'user_lesson_fk_1')->references(['id_User'])->on('user')->OnDelete('cascade');
-            $table->foreign(['fk_Lessonid_Lesson'], 'user_lesson_fk_2')->references(['id_Lesson'])->on('lesson')->OnDelete('cascade');
+            $table->foreign(['fk_userid_user'], 'user_lesson_fk_1')->references(['id_User'])->on('user')->OnDelete('cascade');
+            $table->foreign(['fk_lessonid_lesson'], 'user_lesson_fk_2')->references(['id_lesson'])->on('lesson')->OnDelete('cascade');
         });
     }
 

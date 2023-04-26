@@ -39,8 +39,9 @@ class Lesson extends Model
     {
         return $this->belongsToMany('App\Models\User', 'user_lesson', 'fk_Lessonid_Lesson', 'fk_Userid_User');
     }
-    /*public function users()
-    {
-        return $this->belongsToMany(User::class, 'user_lesson');
-    }*/
+
+  public function mainLesson()
+  {
+    return $this->belongsTo('App\Models\ClassModel', 'fk_Classid_Class', 'id_Class');
+  }
 }
