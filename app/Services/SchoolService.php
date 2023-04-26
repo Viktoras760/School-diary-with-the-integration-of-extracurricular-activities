@@ -5,10 +5,11 @@ namespace App\Services;
 use App\Http\Controllers\AuthController;
 use App\Models\School;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 
 class SchoolService
 {
-  public function schoolErrorHandler($schoolId): bool|\Illuminate\Http\JsonResponse
+  public function schoolErrorHandler($schoolId): bool|JsonResponse
   {
     $school = School::find($schoolId);
     $role = (new AuthController)->authRole();
@@ -45,18 +46,9 @@ class SchoolService
     return $school;
   }
 
-  public function schoolsErrorHandler($action): bool|\Illuminate\Http\JsonResponse
+  public function schoolsErrorHandler($action): bool|JsonResponse
   {
     $schools = School::all();
-    $role = (new AuthController)->authRole();
-
-    if($role != 'System Administrator')
-    {
-      return response()->json([
-        'status' => 'error',
-        'message' => 'No rights to do that',
-      ], 401);
-    }
 
     if (!$schools && $action == 'get') {
       return response()->json(['message' => 'Schools not found'], 404);
@@ -65,7 +57,7 @@ class SchoolService
     return false;
   }
 
-  public function schoolDeletionErrorHandler($schoolId): bool|\Illuminate\Http\JsonResponse
+  public function schoolDeletionErrorHandler($schoolId): bool|JsonResponse
   {
     $role = (new AuthController)->authRole();
 

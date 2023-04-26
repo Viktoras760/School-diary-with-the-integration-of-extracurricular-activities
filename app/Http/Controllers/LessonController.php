@@ -162,7 +162,7 @@ class LessonController extends Controller
   function index($schoolId, $classroomId): Collection|JsonResponse
   {
     try {
-      $lessons = Lesson::where('fk_Classroomid_Classroom')->get();
+      $lessons = Lesson::where('fk_Classroomid_Classroom' ,'=', $classroomId)->get();
       if (count($lessons) < 1)
       {
         return response()->json(['error' => 'There are no lessons'], 404);

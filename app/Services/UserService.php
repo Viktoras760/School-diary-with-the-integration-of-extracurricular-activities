@@ -41,14 +41,9 @@ class UserService
   public function userShowErrorHandler($id) {
     $role = (new AuthController)->authRole();
     $user = User::find($id);
-    if($role != 'System Administrator')
+
+    if($role != 'System Administrator' && !($role === 'School Administrator' && ($user->fk_Schoolid_School === (auth()->user()->fk_Schoolid_School ?? null))))
     {
-      return response()->json([
-        'status' => 'error',
-        'message' => 'No rights to do that',
-      ], 401);
-    }
-    else if ($role === 'School Administrator' && ($user->fk_Schoolid_School != (auth()->user()->fk_Schoolid_School ?? null))) {
       return response()->json([
         'status' => 'error',
         'message' => 'No rights to do that',
@@ -67,7 +62,7 @@ class UserService
   {
     $role = (new AuthController)->authRole();
     $user = User::find($id);
-    if($role != 'System Administrator')
+    if($role != 'System Administrator' && !($role === 'School Administrator' && count($user->lessons()->get()) < 1 && $user->role === 'Pupil'))
     {
       return response()->json([
         'status' => 'error',
