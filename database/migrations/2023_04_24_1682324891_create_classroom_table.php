@@ -16,7 +16,7 @@ return new class extends Migration
 		$table->tinyInteger('musicalEquipment');
 		$table->tinyInteger('chemistryEquipment');
 		$table->tinyInteger('computers');
-		$table->integer('id_classroom', true);
+		$table->integer('id_Classroom', true);
 		$table->integer('fk_Schoolid_School');
 
         });
