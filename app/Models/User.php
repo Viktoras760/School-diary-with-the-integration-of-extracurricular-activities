@@ -19,18 +19,19 @@ class User extends Authenticatable implements JWTSubject
     protected $primaryKey = 'id_User';
 
     protected $fillable = [
-        'name',
-        'surname',
-        'personalCode',
-        'email',
-        'grade',
-        'password',
-        'iat',
-        'role',
-        'confirmation',
-        'cv',
-        'fk_Schoolid_School',
-        'creatorId'
+      'name',
+      'surname',
+      'personalCode',
+      'email',
+      'grade',
+      'password',
+      'speciality',
+      'iat',
+      'role',
+      'confirmation',
+      'cv',
+      'fk_Schoolid_School',
+      'fk_Classid_Class',
     ];
 
     protected $hidden = [
@@ -76,6 +77,18 @@ class User extends Authenticatable implements JWTSubject
   public function class1()
   {
     return $this->belongsTo('App\Models\ClassModel', 'fk_Classid_Class', 'id_Class');
+  }
+  public function role()
+  {
+    return $this->belongsTo('App\Models\Role', 'role', 'id_Role');
+  }
+  public function confirmation()
+  {
+    return $this->belongsTo('App\Models\Confirmation', 'confirmation', 'id_Confirmation');
+  }
+  public function userLessons()
+  {
+    return $this->hasMany('App\Models\UserLesson', 'fk_Userid_User', 'id_User');
   }
 
 }

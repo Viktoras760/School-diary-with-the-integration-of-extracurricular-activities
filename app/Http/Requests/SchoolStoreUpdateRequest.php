@@ -31,8 +31,7 @@ class SchoolStoreUpdateRequest extends FormRequest
     return [
       'name' => 'required|string|max:255',
       'address' => 'required|string|max:255',
-      'pupilAmount' => 'required|integer|max:5000|min:0',
-      'teacherAmount' => 'required|integer|max:1000|min:0',
+      'floorAmount' => 'required|integer',
     ];
   }
 }
