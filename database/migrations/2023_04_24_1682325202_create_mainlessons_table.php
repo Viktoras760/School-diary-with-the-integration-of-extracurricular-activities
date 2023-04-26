@@ -13,7 +13,7 @@ return new class extends Migration
 		$table->string('name',40);
 		$table->string('lessonsType',60);
 		$table->integer('id_mainLessons', true);
-		$table->integer('fk_Classid_Class');
+		$table->integer('fk_Classid_Class')->nullable();
 
         });
     }
