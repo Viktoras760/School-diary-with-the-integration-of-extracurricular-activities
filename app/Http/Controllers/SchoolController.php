@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SchoolStoreUpdateRequest;
 use App\Models\School;
 use App\Services\SchoolService;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 
@@ -49,7 +50,7 @@ class SchoolController extends Controller
       }
     }
 
-    function index(): \Illuminate\Database\Eloquent\Collection|\Illuminate\Http\JsonResponse
+    function index(): Collection|JsonResponse
     {
 
       $handler = $this->schoolService->schoolsErrorHandler('get');
@@ -63,7 +64,7 @@ class SchoolController extends Controller
       }
     }
 
-    function store(SchoolStoreUpdateRequest $req): \Illuminate\Http\JsonResponse|School
+    function store(SchoolStoreUpdateRequest $req): JsonResponse|School
     {
       $data = $req->validated();
 
@@ -81,7 +82,7 @@ class SchoolController extends Controller
       }
     }
 
-    function destroy($id): \Illuminate\Http\JsonResponse
+    function destroy($id): JsonResponse
     {
       try {
         $school = School::find($id);
