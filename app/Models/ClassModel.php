@@ -9,7 +9,7 @@ class ClassModel extends Model
 {
   use HasFactory;
 
-  protected $table = 'class1';
+  protected $table = 'class';
 
   protected $primaryKey = 'id_Class';
 
