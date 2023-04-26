@@ -14,13 +14,15 @@ class Lesson extends Model
     protected $primaryKey = 'id_Lesson';
 
     protected $fillable = [
-        'lessonsName',
-        'lessonsStartingTime',
-        'lessonsEndingTime',
-        'lowerGradeLimit',
-        'upperGradeLimit',
-        'fk_Classroomid_Classroom',
-        'creatorId'
+      'lessonsStartingTime',
+      'lessonsEndingTime',
+      'lowerGradeLimit',
+      'upperGradeLimit',
+      'type',
+      'fk_nonscholasticActivityid_nonscholasticActivity',
+      'fk_Classroomid_Classroom',
+      'fk_mainLessonsid_mainLessons',
+      'creatorId'
     ];
 
     protected $hidden = [
@@ -40,8 +42,21 @@ class Lesson extends Model
         return $this->belongsToMany('App\Models\User', 'user_lesson', 'fk_Lessonid_Lesson', 'fk_Userid_User');
     }
 
-  public function mainLesson()
+  public function mainLessons()
   {
-    return $this->belongsTo('App\Models\ClassModel', 'fk_Classid_Class', 'id_Class');
+    return $this->belongsTo('App\Models\MainLessons', 'fk_mainLessonsid_mainLessons', 'id_mainLesson');
+  }
+
+  public function nonscholasticactivity()
+  {
+    return $this->belongsTo('App\Models\Nonscholasticactivity', 'fk_nonscholasticActivityid_nonscholasticActivity', 'id_nonscholasticActivity');
+  }
+  public function type()
+  {
+    return $this->belongsTo('App\Models\LessonType', 'type', 'id_lessonType');
+  }
+  public function userLessons()
+  {
+    return $this->hasMany('App\Models\UserLesson', 'fk_lessonid_lesson', 'id_Lesson');
   }
 }

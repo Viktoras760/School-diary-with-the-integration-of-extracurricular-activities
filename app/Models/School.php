@@ -16,8 +16,7 @@ class School extends Model
     protected $fillable = [
         'name',
         'address',
-        'pupilAmount',
-        'teacherAmount'
+        'floorAmount'
     ];
 
     public $timestamps=false;
