@@ -16,9 +16,9 @@ return new class extends Migration
         Schema::table('lesson', function (Blueprint $table) {
           $table->foreign(['fk_mainLessonsid_mainLessons'], 'Lesson_associatesWith_mainLesson')->references(['id_mainLessons'])->on('mainlessons');
           $table->foreign(['fk_nonscholasticActivityid_nonscholasticActivity'], 'Lesson_associatesWith_nonscholasticactivity')->references(['id_nonscholasticActivity'])->on('nonscholasticactivity');
-          $table->foreign(['fk_classroomid_classroom'], 'Lesson_have_classroom')->references(['id_classroom'])->on('classroom');
+          $table->foreign(['fk_Classroomid_Classroom'], 'Lesson_have_classroom')->references(['id_Classroom'])->on('Classroom');
           $table->foreign(['type'], 'Lesson_lesson_ibfk_1_type')->references(['id_lessonType'])->on('lessontype');
-          $table->foreign(['fk_userid_user'], 'Lesson_makes_user')->references(['id_user'])->on('user');
+          $table->foreign(['fk_Userid_User'], 'Lesson_makes_user')->references(['id_User'])->on('User');
         });
     }
 
