@@ -12,7 +12,7 @@ return new class extends Migration
 
 		$table->string('name',100);
 		$table->string('surname',150);
-		$table->integer('personalCode');
+		$table->bigInteger('personalCode');
 		$table->string('email',100);
 		$table->integer('grade')->default(0);
 		$table->string('password');
