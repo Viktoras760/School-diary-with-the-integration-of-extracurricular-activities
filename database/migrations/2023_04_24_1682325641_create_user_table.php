@@ -25,7 +25,7 @@ return new class extends Migration
 		$table->integer('confirmation')->nullable()->default(1);
 		$table->integer('id_User', true);
 		$table->integer('fk_Classid_Class');
-		$table->integer('fk_schoolid_school');
+		$table->integer('fk_Schoolid_School');
 
         });
     }
