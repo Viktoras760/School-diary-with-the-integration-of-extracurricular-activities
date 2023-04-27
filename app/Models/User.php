@@ -12,73 +12,73 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable;
+  use HasFactory, Notifiable;
 
-    protected $table = 'user';
+  protected $table = 'user';
 
-    protected $primaryKey = 'id_User';
+  protected $primaryKey = 'id_User';
 
-    protected $fillable = [
-      'name',
-      'surname',
-      'personalCode',
-      'email',
-      'grade',
-      'password',
-      'speciality',
+  protected $fillable = [
+    'name',
+    'surname',
+    'personalCode',
+    'email',
+    'grade',
+    'password',
+    'speciality',
+    'iat',
+    'role',
+    'confirmation',
+    'cv',
+    'fk_Schoolid_School',
+    'fk_Classid_Class',
+  ];
+
+  protected $hidden = [
       'iat',
-      'role',
-      'confirmation',
-      'cv',
-      'fk_Schoolid_School',
-      'fk_Classid_Class',
-    ];
-
-    protected $hidden = [
-        'iat',
-        'remember_token'
-    ];
+      'remember_token'
+  ];
 
 
-    /**
-     * Get the identifier that will be stored in the subject claim of the JWT.
-     *
-     * @return mixed
-     */
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
-    }
+  /**
+   * Get the identifier that will be stored in the subject claim of the JWT.
+   *
+   * @return mixed
+   */
+  public function getJWTIdentifier()
+  {
+      return $this->getKey();
+  }
 
-    /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
-     *
-     * @return array
-     */
-    public function getJWTCustomClaims()
-    {
-        return [
-            'Users id' => $this->id_User,
-            'role' => $this->role,
-        ];
-    }
+  /**
+   * Return a key value array, containing any custom claims to be added to the JWT.
+   *
+   * @return array
+   */
+  public function getJWTCustomClaims()
+  {
+      return [
+          'Users id' => $this->id_User,
+          'role' => $this->role,
+      ];
+  }
 
-    public $timestamps=true;
+  public $timestamps=true;
 
-    public function school()
-    {
-        return $this->hasOne('App\Models\School', 'id_School', 'fk_Schoolid_School');
-    }
+  public function school()
+  {
+      return $this->hasOne('App\Models\School', 'id_School', 'fk_Schoolid_School');
+  }
 
-    public function lessons()
-    {
-        return $this->belongsToMany('App\Models\Lesson', 'user_lesson', 'fk_Userid_User', 'fk_Lessonid_Lesson');
-    }
+  public function lessons()
+  {
+      return $this->belongsToMany('App\Models\Lesson', 'user_lesson', 'fk_Userid_User', 'fk_Lessonid_Lesson');
+  }
   public function class1()
   {
     return $this->belongsTo('App\Models\ClassModel', 'fk_Classid_Class', 'id_Class');
   }
-  public function role()
+  public function role1()
   {
     return $this->belongsTo('App\Models\Role', 'role', 'id_Role');
   }

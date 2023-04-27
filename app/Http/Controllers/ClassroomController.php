@@ -93,13 +93,27 @@ class ClassroomController extends Controller
     }
   }
 
-  function index($idSchool)
+  function index($idSchool, Request $request)
   {
+    $floor = $request->floor;
+    $number = $request->number;
     try {
       $handle = $this->classroomService->classroomErrorHandler($idSchool);
       $exists = $this->classroomService->classroomsExistance($idSchool);
+
       if (!$handle && !$exists) {
-        return Classroom::where('classroom.fk_Schoolid_School','=',$idSchool)->get();
+        if (($floor === null && $number === null) || ($floor === '-1' && $number === '-1')) {
+          return Classroom::where('fk_Schoolid_School', '=', $idSchool)->get();
+        }
+
+        $query = Classroom::where('fk_Schoolid_School', '=', $idSchool);
+        if ($floor !== null && $floor !== '-1') {
+          $query->where('floorNumber', '=', $floor);
+        }
+        if ($number !== null && $number !== '-1') {
+          $query->where('number', '=', $number);
+        }
+        return $query->get();
       } else {
         return $handle ?: $exists;
       }
@@ -107,6 +121,7 @@ class ClassroomController extends Controller
       return response()->json(['error' => $e->getMessage(), 'message' => trans('global.create_failed')], 422);
     }
   }
+
 }
 
 
