@@ -15,7 +15,7 @@ class SchoolController extends Controller
     public function __construct(SchoolService $schoolService)
     {
       $this->schoolService = $schoolService;
-      $this->middleware('auth:api', ['except' => []]);
+      $this->middleware('auth:api', ['except' => ['index']]);
     }
     public function update($id, SchoolStoreUpdateRequest $request): JsonResponse
     {

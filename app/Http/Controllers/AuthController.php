@@ -146,6 +146,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'cv' => $request->cv,
             'password' => Hash::make($request->password),
+            'fk_Schoolid_School' => $request->fk_Schoolid_School,
           ]);
         } else {
           User::create([
@@ -155,6 +156,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'cv' => null,
             'password' => Hash::make($request->password),
+            'fk_Schoolid_School' => $request->fk_Schoolid_School,
           ]);
         }
 
