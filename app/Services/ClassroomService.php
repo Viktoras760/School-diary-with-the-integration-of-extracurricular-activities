@@ -15,7 +15,6 @@ class ClassroomService
   {
     $role = (new AuthController)->authRole();
     $school = School::find($idSchool);
-
     if($role != 'System Administrator' && $role != 'School Administrator')
     {
       return response()->json([

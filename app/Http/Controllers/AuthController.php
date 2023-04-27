@@ -30,7 +30,7 @@ class AuthController extends Controller
         $log = AuthController::loggedIn();
         if ($log)
         {
-            return auth()->user()->role;
+          return auth()->user()->role1->name;
         }
         else return response()->json([
             'status' => 'error',
@@ -114,7 +114,7 @@ class AuthController extends Controller
       ]);
     }
 
-    $user = auth()->user()->load('role');
+    $user = auth()->user()->load(['role1', 'confirmation', 'school', 'class1']);
     $expiresIn = auth()->factory()->getTTL() * 60;
 
     return response()->json([
@@ -194,6 +194,6 @@ class AuthController extends Controller
      */
     public function me(): JsonResponse
     {
-      return response()->json(auth()->user()->load(['role', 'confirmation', 'school', 'class1']));
+      return response()->json(auth()->user()->load(['role1', 'confirmation', 'school', 'class1']));
     }
 }
