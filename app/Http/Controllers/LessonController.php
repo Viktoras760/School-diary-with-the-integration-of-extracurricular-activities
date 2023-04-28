@@ -44,7 +44,6 @@ class LessonController extends Controller
   function store(LessonStoreUpdateRequest $req, $idSchool, $idClassroom): Lesson|JsonResponse|bool
   {
     $data = $req->validated();
-
     try {
       $handle = $this->lessonService->lessonErrorHandler($idSchool, $idClassroom);
       $handleStore = $this->lessonService->lessonStoreErrorHandler($idSchool, $data);
