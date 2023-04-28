@@ -14,6 +14,7 @@ class Lesson extends Model
     protected $primaryKey = 'id_Lesson';
 
     protected $fillable = [
+      'lessonName',
       'lessonsStartingTime',
       'lessonsEndingTime',
       'lowerGradeLimit',
@@ -44,7 +45,7 @@ class Lesson extends Model
 
   public function mainLessons()
   {
-    return $this->belongsTo('App\Models\MainLessons', 'fk_mainLessonsid_mainLessons', 'id_mainLesson');
+    return $this->belongsTo('App\Models\MainLessons', 'fk_mainLessonsid_mainLessons', 'id_mainLessons');
   }
 
   public function nonscholasticactivity()

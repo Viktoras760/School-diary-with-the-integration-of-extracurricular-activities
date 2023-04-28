@@ -9,9 +9,9 @@ class MainLessons extends Model
 {
   use HasFactory;
 
-  protected $table = 'MainLesson';
+  protected $table = 'MainLessons';
 
-  protected $primaryKey = 'id_mainLesson';
+  protected $primaryKey = 'id_mainLessons';
 
   protected $fillable = [
     'name',
@@ -31,6 +31,6 @@ class MainLessons extends Model
 
   public function lessons()
   {
-    return $this->hasMany('App\Models\Lesson', 'fk_mainLessonsid_mainLessons', 'id_mainLesson');
+    return $this->hasMany('App\Models\Lesson', 'fk_mainLessonsid_mainLessons', 'id_mainLessons');
   }
 }

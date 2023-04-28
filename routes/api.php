@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\ClassController;
+use App\Http\Controllers\MainLessonsController;
+use App\Http\Controllers\NonscholasticactivityController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -68,4 +71,25 @@ Route::group([
     Route::get('tokens', [AuthController::class, 'logout']);
     Route::post('tokens', [AuthController::class, 'refresh']);
     Route::post('user', [AuthController::class, 'me']);
+});
+
+//Main lessons
+Route::group([
+  'middleware' => 'api',
+], function ($router) {
+  $router->apiResource('mainlessons', MainLessonsController::class);
+});
+
+//Nonscholastic activities
+Route::group([
+  'middleware' => 'api',
+], function ($router) {
+  $router->apiResource('nonscholastic', NonscholasticactivityController::class);
+});
+
+//Classes
+Route::group([
+  'middleware' => 'api',
+], function ($router) {
+  $router->apiResource('class', ClassController::class);
 });

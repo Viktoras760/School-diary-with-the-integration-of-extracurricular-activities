@@ -28,11 +28,14 @@ class LessonStoreUpdateRequest extends FormRequest
   public function rules()
   {
     return [
-      'lessonsName' => 'required|string|max:255',
+      'lessonsName' => 'string|max:255',
       'lowerGradeLimit' => 'required|integer|max:12|min:0',
       'upperGradeLimit' => 'required|integer|max:12|min:0',
       'lessonsStartingTime' => 'required|date|date_format:Y-m-d H:i',
       'lessonsEndingTime' => 'required|date|after:lessonsStartingTime|date_format:Y-m-d H:i',
+      'type' => 'integer',
+      'fk_mainLessonsid_mainLessons' => 'nullable|integer',
+      'fk_nonscholasticActivityid_nonscholasticActivity' => 'nullable|integer',
     ];
   }
 }
