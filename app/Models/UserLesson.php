@@ -17,7 +17,7 @@ class UserLesson extends Model
     'mark',
     'comment',
     'Attended',
-    'fk_lessonid_lesson',
+    'fk_Lessonid_Lesson',
     'fk_Userid_User'
   ];
 
@@ -30,6 +30,6 @@ class UserLesson extends Model
 
   public function lesson()
   {
-    return $this->belongsTo('App\Models\Lesson', 'fk_lessonid_lesson', 'id_Lesson');
+    return $this->belongsTo('App\Models\Lesson', 'fk_Lessonid_Lesson', 'id_Lesson');
   }
 }

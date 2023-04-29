@@ -14,7 +14,7 @@ return new class extends Migration
 		$table->string('comment')->nullable()->default('NULL');
 		$table->tinyInteger('Attended')->nullable()->default(1);
 		$table->integer('id_user_lesson', true);
-		$table->integer('fk_lessonid_lesson');
+		$table->integer('fk_Lessonid_Lesson');
 		$table->integer('fk_Userid_User');
 
         });

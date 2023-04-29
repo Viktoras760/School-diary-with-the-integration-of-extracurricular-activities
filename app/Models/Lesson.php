@@ -58,6 +58,6 @@ class Lesson extends Model
   }
   public function userLessons()
   {
-    return $this->hasMany('App\Models\UserLesson', 'fk_lessonid_lesson', 'id_Lesson');
+    return $this->hasMany('App\Models\UserLesson', 'fk_Lessonid_Lesson', 'id_Lesson');
   }
 }
