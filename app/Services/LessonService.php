@@ -9,6 +9,7 @@ use App\Models\School;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class LessonService
 {
@@ -106,6 +107,28 @@ class LessonService
     }
     return false;
   }
+
+  public function getAvailableLessons($classroomId): Collection
+  {
+    $available = collect([]);
+    $lessons = Lesson::where('fk_Classroomid_Classroom' ,'=', $classroomId)
+      ->where('lowerGradeLimit', '<=', auth()->user()->grade)
+      ->where('upperGradeLimit', '>=', auth()->user()->grade)
+      ->where('fk_nonscholasticActivityid_nonscholasticActivity', '!=', NULL)
+      ->with(['creator', 'nonscholasticactivity'])
+      ->get();
+    $userLessons = auth()->user()->lessons()->get();
+    if (count($userLessons) > 0) {
+      foreach ($lessons as $lesson) {
+        if (!$this->checkForCrossingTime($userLessons, $lesson)) {
+          $available->push($lesson);
+        }
+      }
+    } else $available = $lessons;
+    return $available;
+  }
+
+
   public function update ($data, $lessonId): Lesson
   {
     $lesson = Lesson::find($lessonId);
@@ -120,11 +143,11 @@ class LessonService
    * @param $idClassroom
    * @return Lesson
    */
-  public function create($data, $idClassroom): Lesson
+  public function create($data, $idClassroom, $teacher): Lesson
   {
     $data['fk_Classroomid_Classroom'] = $idClassroom;
 
-    $data['creatorId'] = (auth()->user()->id_User ?? null);
+    $data['creatorId'] = ($teacher ?? null);
 
     return Lesson::create($data);
   }

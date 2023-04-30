@@ -100,7 +100,24 @@ class UserController extends Controller
           'message' => 'No rights to do that',
         ], 401);
       }
-      return User::where('fk_Schoolid_School', '=', auth()->user()->fk_Schoolid_School ?? null)->where('role', '!=', 'System Administrator')->get();
+      return User::where('fk_Schoolid_School', '=', auth()->user()->fk_Schoolid_School ?? null)->where('role', '!=', 4)->get();
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
+    }
+  }
+
+  function getSchoolTeachers()
+  {
+    try {
+      $role = (new AuthController)->authRole();
+      if($role != 'System Administrator' && $role != 'School Administrator')
+      {
+        return response()->json([
+          'status' => 'error',
+          'message' => 'No rights to do that',
+        ], 401);
+      }
+      return User::where('fk_Schoolid_School', '=', auth()->user()->fk_Schoolid_School ?? null)->where('role', '=', 2)->get();
     } catch (QueryException $e) {
       return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }
