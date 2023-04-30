@@ -158,15 +158,38 @@ class LessonController extends Controller
     }
   }
 
-  function index($schoolId, $classroomId, Request $req): Collection|JsonResponse
+  function index($schoolId, $classroomId, Request $req): Collection|JsonResponse|array
   {
     $date = $req->date;
+    $secondary = $req->showOnlySecondary;
+    $available = $req->showOnlyAvailable;
     try {
-      if ($date) {
+      if ($date && $secondary && $available) {
+        $availableLessons = $this->lessonService->getAvailableLessons($classroomId);
         $endDate = Carbon::parse($date)->addDay()->format('Y-m-d');
-        $lessons = Lesson::where('fk_Classroomid_Classroom' ,'=', $classroomId)->where('lessonsStartingTime', '>=', $date)->where('lessonsStartingTime', '<', $endDate)->get();
+        $lessons2 = $availableLessons->where('lessonsStartingTime', '>=', $date)->where('lessonsStartingTime', '<', $endDate)->with(['creator', 'nonscholasticactivity'])->get();
+        $data = json_decode($lessons2, true);
+        $lessons = array_values($data);
+      } else if ($date && $secondary) {
+        $endDate = Carbon::parse($date)->addDay()->format('Y-m-d');
+        $lessons = Lesson::where('fk_Classroomid_Classroom' ,'=', $classroomId)->where('lessonsStartingTime', '>=', $date)->where('lessonsStartingTime', '<', $endDate)->where('fk_nonscholasticActivityid_nonscholasticActivity', '!=', NULL)->with(['creator', 'nonscholasticactivity'])->get();
+      } else if ($date && $available) {
+        $availableLessons = $this->lessonService->getAvailableLessons($classroomId);
+        $endDate = Carbon::parse($date)->addDay()->format('Y-m-d');
+        $lessons2 = $availableLessons->where('fk_Classroomid_Classroom' ,'=', $classroomId)->where('lessonsStartingTime', '>=', $date)->where('lessonsStartingTime', '<', $endDate)->where('fk_nonscholasticActivityid_nonscholasticActivity', '!=', NULL);
+        $data = json_decode($lessons2, true);
+        $lessons = array_values($data);
+      } else if ($date) {
+        $endDate = Carbon::parse($date)->addDay()->format('Y-m-d');
+        $lessons = Lesson::where('fk_Classroomid_Classroom' ,'=', $classroomId)->where('lessonsStartingTime', '>=', $date)->where('lessonsStartingTime', '<', $endDate)->with(['creator', 'nonscholasticactivity'])->get();
+      } else if ($secondary) {
+        $lessons = Lesson::where('fk_Classroomid_Classroom' ,'=', $classroomId)->where('fk_nonscholasticActivityid_nonscholasticActivity', '!=', NULL)->with(['creator', 'nonscholasticactivity'])->get();
+      } else if ($available) {
+        $lessons2 = $this->lessonService->getAvailableLessons($classroomId);
+        $data = json_decode($lessons2, true);
+        $lessons = array_values($data);
       } else {
-        $lessons = Lesson::where('fk_Classroomid_Classroom' ,'=', $classroomId)->get();
+        $lessons = Lesson::where('fk_Classroomid_Classroom' ,'=', $classroomId)->with(['creator', 'nonscholasticactivity'])->get();
       }
       if (count($lessons) < 1)
       {
