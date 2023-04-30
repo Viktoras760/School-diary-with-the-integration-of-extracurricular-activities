@@ -158,10 +158,16 @@ class LessonController extends Controller
     }
   }
 
-  function index($schoolId, $classroomId): Collection|JsonResponse
+  function index($schoolId, $classroomId, Request $req): Collection|JsonResponse
   {
+    $date = $req->date;
     try {
-      $lessons = Lesson::where('fk_Classroomid_Classroom' ,'=', $classroomId)->get();
+      if ($date) {
+        $endDate = Carbon::parse($date)->addDay()->format('Y-m-d');
+        $lessons = Lesson::where('fk_Classroomid_Classroom' ,'=', $classroomId)->where('lessonsStartingTime', '>=', $date)->where('lessonsStartingTime', '<', $endDate)->get();
+      } else {
+        $lessons = Lesson::where('fk_Classroomid_Classroom' ,'=', $classroomId)->get();
+      }
       if (count($lessons) < 1)
       {
         return response()->json(['error' => 'There are no lessons'], 404);

@@ -28,7 +28,7 @@ class LessonStoreUpdateRequest extends FormRequest
   public function rules()
   {
     return [
-      'lessonsName' => 'string|max:255',
+      'lessonName' => 'string|max:255',
       'lowerGradeLimit' => 'required|integer|max:12|min:0',
       'upperGradeLimit' => 'required|integer|max:12|min:0',
       'lessonsStartingTime' => 'required|date|date_format:Y-m-d H:i',
