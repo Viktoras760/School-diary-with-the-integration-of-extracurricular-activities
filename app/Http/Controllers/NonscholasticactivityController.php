@@ -58,5 +58,19 @@ class NonscholasticactivityController extends Controller
     }
   }
 
+  function destroy($id): JsonResponse
+  {
+    try {
+      $activity = Nonscholasticactivity::find($id);
+
+      $activity->delete();
+
+      return response()->json(['success' => 'Activity type deleted']);
+
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => 'Activity deletion failed'], 422);
+    }
+  }
+
 
 }

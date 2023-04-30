@@ -143,11 +143,11 @@ class LessonService
    * @param $idClassroom
    * @return Lesson
    */
-  public function create($data, $idClassroom): Lesson
+  public function create($data, $idClassroom, $teacher): Lesson
   {
     $data['fk_Classroomid_Classroom'] = $idClassroom;
 
-    $data['creatorId'] = (auth()->user()->id_User ?? null);
+    $data['creatorId'] = ($teacher ?? null);
 
     return Lesson::create($data);
   }

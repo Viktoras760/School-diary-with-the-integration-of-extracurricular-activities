@@ -53,4 +53,18 @@ class MainLessonsController extends Controller
     }
   }
 
+  function destroy($id): JsonResponse
+  {
+    try {
+      $activity = MainLessons::find($id);
+
+      $activity->delete();
+
+      return response()->json(['success' => 'Lesson type deleted']);
+
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => 'Lesson deletion failed'], 422);
+    }
+  }
+
 }
