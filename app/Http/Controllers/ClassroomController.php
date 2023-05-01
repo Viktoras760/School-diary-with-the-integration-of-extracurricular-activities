@@ -103,10 +103,10 @@ class ClassroomController extends Controller
 
       if (!$handle && !$exists) {
         if (($floor === null && $number === null) || ($floor === '-1' && $number === '-1')) {
-          return Classroom::where('fk_Schoolid_School', '=', $idSchool)->get();
+          return Classroom::where('fk_Schoolid_School', '=', $idSchool)->where('id_Classroom', '!=', 0)->get();
         }
 
-        $query = Classroom::where('fk_Schoolid_School', '=', $idSchool);
+        $query = Classroom::where('fk_Schoolid_School', '=', $idSchool)->where('id_Classroom', '!=', 0);
         if ($floor !== null && $floor !== '-1') {
           $query->where('floorNumber', '=', $floor);
         }
@@ -118,7 +118,7 @@ class ClassroomController extends Controller
         return $handle ?: $exists;
       }
     } catch (QueryException $e) {
-      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.create_failed')], 422);
+      return response()->json(['error' => $e->getMessage(), 'message' => 'Classroom getting failed'], 422);
     }
   }
 

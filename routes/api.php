@@ -59,6 +59,7 @@ Route::group([
   Route::delete('user_lessons/{id}', [LessonController::class, 'unregisterFromLesson']);
   Route::get('user_lessons/', [LessonController::class, 'getUserLessons']);
   Route::get('teacher_lessons/', [LessonController::class, 'getTeachersLessons']);
+  Route::post('custom_lessons/', [LessonController::class, 'addCustomActivity']);
   $router->apiResource('schools/{idSchool}/classrooms/{idClassroom}/lessons', LessonController::class);
 });
 
