@@ -30,7 +30,7 @@ class UserController extends Controller
       $handle = $this->userService->userIndexErrorHandler();
 
       if (!$handle) {
-        return User::all();
+        return User::with(['role1', 'confirmation'])->get();
       } else {
         return $handle;
       }
@@ -45,7 +45,7 @@ class UserController extends Controller
       $handle = $this->userService->userShowErrorHandler($id);
 
       if (!$handle) {
-        return User::find($id);
+        return User::with(['role1', 'confirmation'])->find($id);
       } else {
         return $handle;
       }
