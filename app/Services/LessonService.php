@@ -86,7 +86,7 @@ class LessonService
     else return false;
   }
 
-  public function lessonTimeHandler($data, $idClassroom, $action): bool|JsonResponse
+  public function lessonTimeHandler($data, $idClassroom, $action, $id): bool|JsonResponse
   {
     if ($action == 'store' || $action == 'update') {
       $lessons = Lesson::where('fk_Classroomid_Classroom', '=', $idClassroom)->get();
@@ -96,7 +96,7 @@ class LessonService
 
     if (count($lessons) >= 1)
     {
-      if ($this->checkForCrossingTime($lessons, $data)) {
+      if ($this->checkForCrossingTime($lessons, $data, $id)) {
         if ($action == 'store' || $action == 'update') {
           return response()->json(['error' => 'This time is already occupied by another lesson'], 404);
         }
@@ -152,27 +152,27 @@ class LessonService
     return Lesson::create($data);
   }
 
-  private function checkForCrossingTime($lessons, $data)
+  private function checkForCrossingTime($lessons, $data, $id)
   {
     for ($i = 0; $i < count($lessons); $i++)
     {
-      //      12:00-12:45
-      //11:15-12:00
-      if((new Carbon($data['lessonsStartingTime']))->eq(new Carbon($lessons[$i]->lessonsStartingTime)) || (new Carbon($data['lessonsEndingTime']))->eq(new Carbon($lessons[$i]->lessonsEndingTime)) || (new Carbon($data['lessonsEndingTime']))->eq(new Carbon($lessons[$i]->lessonsStartingTime)) || (new Carbon($data['lessonsStartingTime']))->eq(new Carbon($lessons[$i]->lessonsEndingTime)))
-      {
-        return true;
-      }
-      //12:00  -  12:45
-      //  12:15-12:30
-      if(((new Carbon($data['lessonsStartingTime'])) < (new Carbon($lessons[$i]->lessonsStartingTime)) && (new Carbon($data['lessonsEndingTime'])) > (new Carbon($lessons[$i]->lessonsEndingTime)))||((new Carbon($data['lessonsStartingTime'])) > (new Carbon($lessons[$i]->lessonsStartingTime)) && (new Carbon($data['lessonsEndingTime'])) < (new Carbon($lessons[$i]->lessonsEndingTime))))
-      {
-        return true;
-      }
-      //12:00-12:45
-      //  12:00-13:00
-      if(((new Carbon($data['lessonsStartingTime'])) > (new Carbon($lessons[$i]->lessonsStartingTime)) && (new Carbon($data['lessonsStartingTime'])) < (new Carbon($lessons[$i]->lessonsEndingTime))) ||(new Carbon($data['lessonsEndingTime']) > (new Carbon($lessons[$i]->lessonsStartingTime)) && (new Carbon($data['lessonsEndingTime'])) < (new Carbon($lessons[$i]->lessonsEndingTime))))
-      {
-        return true;
+      if (strval($lessons[$i]->id_Lesson) !== $id) {
+
+        //      12:00-12:45
+        //11:15-12:00
+        if ((new Carbon($data['lessonsStartingTime']))->eq(new Carbon($lessons[$i]->lessonsStartingTime)) || (new Carbon($data['lessonsEndingTime']))->eq(new Carbon($lessons[$i]->lessonsEndingTime)) || (new Carbon($data['lessonsEndingTime']))->eq(new Carbon($lessons[$i]->lessonsStartingTime)) || (new Carbon($data['lessonsStartingTime']))->eq(new Carbon($lessons[$i]->lessonsEndingTime))) {
+          return true;
+        }
+        //12:00  -  12:45
+        //  12:15-12:30
+        if (((new Carbon($data['lessonsStartingTime'])) < (new Carbon($lessons[$i]->lessonsStartingTime)) && (new Carbon($data['lessonsEndingTime'])) > (new Carbon($lessons[$i]->lessonsEndingTime))) || ((new Carbon($data['lessonsStartingTime'])) > (new Carbon($lessons[$i]->lessonsStartingTime)) && (new Carbon($data['lessonsEndingTime'])) < (new Carbon($lessons[$i]->lessonsEndingTime)))) {
+          return true;
+        }
+        //12:00-12:45
+        //  12:00-13:00
+        if (((new Carbon($data['lessonsStartingTime'])) > (new Carbon($lessons[$i]->lessonsStartingTime)) && (new Carbon($data['lessonsStartingTime'])) < (new Carbon($lessons[$i]->lessonsEndingTime))) || (new Carbon($data['lessonsEndingTime']) > (new Carbon($lessons[$i]->lessonsStartingTime)) && (new Carbon($data['lessonsEndingTime'])) < (new Carbon($lessons[$i]->lessonsEndingTime)))) {
+          return true;
+        }
       }
     }
     return false;
