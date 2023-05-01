@@ -48,7 +48,7 @@ class LessonController extends Controller
     try {
       $handle = $this->lessonService->lessonErrorHandler($idSchool, $idClassroom);
       $handleStore = $this->lessonService->lessonStoreErrorHandler($idSchool, $data);
-      $timeSuitability = $this->lessonService->lessonTimeHandler($data, $idClassroom, 'store');
+      $timeSuitability = $this->lessonService->lessonTimeHandler($data, $idClassroom, 'store', null);
       if (!$handle && !$handleStore && !$timeSuitability)
       {
         return $this->lessonService->create($data, $idClassroom, $teacher);
@@ -67,10 +67,8 @@ class LessonController extends Controller
       if ($teacher) {
         $user = User::where('id_User', '=', $teacher)->with('lessons')->get();
         $userLessons = $user[0]->lessons()->get();
-        //dd($userLessons);
       } else {
         $userLessons = auth()->user()->lessons()->get();
-        //dd($userLessons);
       }
       $lesson = Lesson::find($id);
       $timeSuitability = false;
@@ -79,7 +77,7 @@ class LessonController extends Controller
       if (!$teacher) {
         $handle2 = $this->lessonService->lessonGetErrorHandler($idSchool, $idClassroom, $id, 'get');
         if (!$handle && !$handle2 && count($userLessons) > 0) {
-          $timeSuitability = $this->lessonService->lessonTimeHandler($lesson->toArray(), $idClassroom, 'register');
+          $timeSuitability = $this->lessonService->lessonTimeHandler($lesson->toArray(), $idClassroom, 'register', null);
         }
 
         if (!$handle && !$handle2 && !$timeSuitability)
@@ -92,7 +90,7 @@ class LessonController extends Controller
         }
       } else {
         if (!$handle && count($userLessons) > 0) {
-          $timeSuitability = $this->lessonService->lessonTimeHandler($lesson->toArray(), $idClassroom, 'register');
+          $timeSuitability = $this->lessonService->lessonTimeHandler($lesson->toArray(), $idClassroom, 'register', null);
         }
 
         if (!$handle && !$timeSuitability)
@@ -155,7 +153,7 @@ class LessonController extends Controller
     try {
       $handle = $this->lessonService->lessonErrorHandler($idSchool, $idClassroom);
       $handle2 = $this->lessonService->lessonUpdateErrorHandler($data, $idSchool, $idClassroom, $id);
-      $timeSuitability = $this->lessonService->lessonTimeHandler($data, $idClassroom, 'update');
+      $timeSuitability = $this->lessonService->lessonTimeHandler($data, $idClassroom, 'update', $id);
 
       if (!$handle && !$handle2 && !$timeSuitability) {
         return $this->lessonService->update($data, $id);
@@ -173,7 +171,7 @@ class LessonController extends Controller
     try {
       $handle = $this->lessonService->userLessonsErrorHandler();
       if (!$handle) {
-        $userLessons = User::find(auth()->user()->id_User ?? null)->lessons()->orderBy('lessonsStartingTime', 'asc')->get();
+        $userLessons = User::find(auth()->user()->id_User ?? null)->lessons()->orderBy('lessonsStartingTime', 'asc')->with('classroom')->get();
       } else return $handle;
 
       return $userLessons;

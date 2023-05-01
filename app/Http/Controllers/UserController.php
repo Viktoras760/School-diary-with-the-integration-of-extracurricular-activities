@@ -30,7 +30,7 @@ class UserController extends Controller
       $handle = $this->userService->userIndexErrorHandler();
 
       if (!$handle) {
-        return User::all();
+        return User::with(['role1', 'confirmation'])->get();
       } else {
         return $handle;
       }
@@ -45,7 +45,7 @@ class UserController extends Controller
       $handle = $this->userService->userShowErrorHandler($id);
 
       if (!$handle) {
-        return User::find($id);
+        return User::with(['role1', 'confirmation'])->find($id);
       } else {
         return $handle;
       }
@@ -100,7 +100,7 @@ class UserController extends Controller
           'message' => 'No rights to do that',
         ], 401);
       }
-      return User::where('fk_Schoolid_School', '=', auth()->user()->fk_Schoolid_School ?? null)->where('role', '!=', 4)->get();
+      return User::where('fk_Schoolid_School', '=', auth()->user()->fk_Schoolid_School ?? null)->where('role', '!=', 4)->where('id_User', '!=', (auth()->user()->id_User ?? null))->with(['role1', 'confirmation'])->get();
     } catch (QueryException $e) {
       return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }
