@@ -34,6 +34,9 @@ Route::group([
   Route::get('school_users/', [UserController::class, 'getSchoolUsers']);
   Route::get('school_teachers/', [UserController::class, 'getSchoolTeachers']);
   Route::get('users/{id}/CV', [UserController::class, 'getUserCV']);
+  Route::get('free_pupils/{grade}', [UserController::class, 'getFreePupils']);
+  Route::put('user/{id}/class/{idClass}', [UserController::class, 'attachToClass']);
+  Route::put('user/{id}/', [UserController::class, 'detachFromClass']);
   $router->apiResource('users', UserController::class);
 });
 
@@ -59,6 +62,7 @@ Route::group([
   Route::delete('user_lessons/{id}', [LessonController::class, 'unregisterFromLesson']);
   Route::get('user_lessons/', [LessonController::class, 'getUserLessons']);
   Route::get('teacher_lessons/', [LessonController::class, 'getTeachersLessons']);
+  Route::post('custom_lessons/', [LessonController::class, 'addCustomActivity']);
   $router->apiResource('schools/{idSchool}/classrooms/{idClassroom}/lessons', LessonController::class);
 });
 

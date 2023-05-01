@@ -24,7 +24,7 @@ class ClassController extends Controller
 
   function index(): Collection|JsonResponse
   {
-    $class = ClassModel::all();
+    $class = ClassModel::all()->load('teacher');
     if (count($class) > 0) {
       $handler = false;
     } else {
@@ -43,10 +43,41 @@ class ClassController extends Controller
     $data = $req->validated();
 
     try {
-      return true;
+      $handle = $this->classService->classErrorHandler($data);
+      if (!$handle) {
+        return $this->classService->create($data);
+      } else {
+        return $handle;
+      }
     } catch (QueryException $e) {
       return response()->json(['error' => $e->getMessage(), 'message' => 'Class creation failed'], 422);
     }
   }
 
+  function destroy($id): JsonResponse
+  {
+    try {
+      $class = ClassModel::find($id);
+
+      $handle = $this->classService->classDeletionErrorHandler($class);
+
+      if (!$handle) {
+        $class->delete();
+
+        return response()->json(['success' => 'Class deleted']);
+
+      } else {
+        return $handle;
+      }
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => 'Class deletion failed'], 422);
+    }
+  }
+
+  function show($id)
+  {
+    $class = ClassModel::with(['users', 'teacher'])->find($id);
+
+    return $class;
+  }
 }

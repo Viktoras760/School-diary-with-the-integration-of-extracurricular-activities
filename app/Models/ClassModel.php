@@ -29,8 +29,28 @@ class ClassModel extends Model
     return $this->hasMany('App\Models\User', 'fk_Classid_Class', 'id_Class');
   }
 
+  public function teacher()
+  {
+    return $this->hasOne('App\Models\User', 'id_User', 'classTeacherId');
+  }
+
   public function mainlessons()
   {
     return $this->hasMany('App\Models\MainLessons', 'fk_Classid_Class', 'id_Class');
+  }
+
+  public function getAllLessons()
+  {
+    $mainLessons = $this->mainlessons;
+    $allLessons = [];
+
+    foreach ($mainLessons as $mainLesson) {
+      $lessons = $mainLesson->lessons;
+      foreach ($lessons as $lesson) {
+        $allLessons[] = $lesson;
+      }
+    }
+
+    return $allLessons;
   }
 }

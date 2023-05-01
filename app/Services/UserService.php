@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Http\Controllers\AuthController;
+use App\Models\Lesson;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Carbon;
 
 class UserService
 {
@@ -97,5 +99,65 @@ class UserService
       ], 404);
     }
     else return false;
+  }
+
+  public function handleUserLessonTimes($class, $user) {
+    $allLessons = $class->getAllLessons();
+    $userLessons = $user->lessons()->where('fk_mainLessonsid_mainLessons', '!=', null)->get();
+
+    if (count($allLessons) >= 1 && count($userLessons) >= 1) {
+      if ($this->checkForCrossingTime($allLessons, $userLessons)) {
+        return response()->json(['error' => 'User already has main lesson on this time'], 409);
+      }
+    }
+
+  }
+
+  public function lessonTimeHandler($data, $idClassroom, $action, $id): bool|JsonResponse
+  {
+    if ($action == 'store' || $action == 'update') {
+      $lessons = Lesson::where('fk_Classroomid_Classroom', '=', $idClassroom)->get();
+    } else {
+      $lessons = auth()->user()->lessons()->get();
+    }
+
+    if (count($lessons) >= 1)
+    {
+      if ($this->checkForCrossingTime($lessons, $data, $id)) {
+        if ($action == 'store' || $action == 'update') {
+          return response()->json(['error' => 'This time is already occupied by another lesson'], 409);
+        }
+        else if ($action == 'register') {
+          return response()->json(['error' => 'You already have lesson on this time'], 409);
+        }
+      }
+    }
+    return false;
+  }
+
+  private function checkForCrossingTime($lessons, $data, $id)
+  {
+    for ($i = 0; $i < count($lessons); $i++)
+    {
+      if (strval($lessons[$i]->id_Lesson) !== $id) {
+
+        //      12:00-12:45
+        //11:15-12:00
+        if ((new Carbon($data['lessonsStartingTime']))->eq(new Carbon($lessons[$i]->lessonsStartingTime)) || (new Carbon($data['lessonsEndingTime']))->eq(new Carbon($lessons[$i]->lessonsEndingTime)) || (new Carbon($data['lessonsEndingTime']))->eq(new Carbon($lessons[$i]->lessonsStartingTime)) || (new Carbon($data['lessonsStartingTime']))->eq(new Carbon($lessons[$i]->lessonsEndingTime))) {
+          return true;
+        }
+        //12:00  -  12:45
+        //  12:15-12:30
+        if (((new Carbon($data['lessonsStartingTime'])) < (new Carbon($lessons[$i]->lessonsStartingTime)) && (new Carbon($data['lessonsEndingTime'])) > (new Carbon($lessons[$i]->lessonsEndingTime))) || ((new Carbon($data['lessonsStartingTime'])) > (new Carbon($lessons[$i]->lessonsStartingTime)) && (new Carbon($data['lessonsEndingTime'])) < (new Carbon($lessons[$i]->lessonsEndingTime)))) {
+          return true;
+        }
+        //12:00-12:45
+        //  12:00-13:00
+        if (((new Carbon($data['lessonsStartingTime'])) > (new Carbon($lessons[$i]->lessonsStartingTime)) && (new Carbon($data['lessonsStartingTime'])) < (new Carbon($lessons[$i]->lessonsEndingTime))) || (new Carbon($data['lessonsEndingTime']) > (new Carbon($lessons[$i]->lessonsStartingTime)) && (new Carbon($data['lessonsEndingTime'])) < (new Carbon($lessons[$i]->lessonsEndingTime)))) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

@@ -60,6 +60,22 @@ class LessonController extends Controller
     }
   }
 
+  function addCustomActivity(LessonStoreUpdateRequest $req): Lesson|JsonResponse|bool
+  {
+    $data = $req->validated();
+    try {
+      $timeSuitability = $this->lessonService->activityTimeHandler($data);
+      if ( !$timeSuitability)
+      {
+        return $this->lessonService->createCustom($data);
+      } else {
+        return $timeSuitability;
+      }
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => 'Activity creation failed'], 422);
+    }
+  }
+
   function registerToLesson(Request $req, $idSchool, $idClassroom, $id): JsonResponse|bool
   {
     $teacher = $req->teacher;
@@ -189,7 +205,7 @@ class LessonController extends Controller
       if ($date && $secondary && $available) {
         $availableLessons = $this->lessonService->getAvailableLessons($classroomId);
         $endDate = Carbon::parse($date)->addDay()->format('Y-m-d');
-        $lessons2 = $availableLessons->where('lessonsStartingTime', '>=', $date)->where('lessonsStartingTime', '<', $endDate)->with(['creator', 'nonscholasticactivity'])->get();
+        $lessons2 = $availableLessons->where('lessonsStartingTime', '>=', $date)->where('lessonsStartingTime', '<', $endDate);
         $data = json_decode($lessons2, true);
         $lessons = array_values($data);
       } else if ($date && $secondary) {

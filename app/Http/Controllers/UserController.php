@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\AuthController;
 use App\Http\Requests\UserUpdateRequest;
+use App\Models\ClassModel;
 use App\Services\UserService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
@@ -106,8 +107,9 @@ class UserController extends Controller
     }
   }
 
-  function getSchoolTeachers()
+  function getSchoolTeachers(Request $request)
   {
+    $class = $request->class;
     try {
       $role = (new AuthController)->authRole();
       if($role != 'System Administrator' && $role != 'School Administrator')
@@ -117,7 +119,14 @@ class UserController extends Controller
           'message' => 'No rights to do that',
         ], 401);
       }
-      return User::where('fk_Schoolid_School', '=', auth()->user()->fk_Schoolid_School ?? null)->where('role', '=', 2)->get();
+      if ($class === '1') {
+        return User::where('fk_Schoolid_School', '=', auth()->user()->fk_Schoolid_School ?? null)
+          ->where('role', '=', 2)
+          ->whereDoesntHave('teachingClass')
+          ->get();
+      } else {
+        return User::where('fk_Schoolid_School', '=', auth()->user()->fk_Schoolid_School ?? null)->where('role', '=', 2)->get();
+      }
     } catch (QueryException $e) {
       return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }
@@ -138,6 +147,67 @@ class UserController extends Controller
       }, $headers);
     } catch (QueryException $e) {
       return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
+    }
+  }
+
+  function getFreePupils($grade) {
+    $grade = intval($grade);
+    return User::where('fk_Schoolid_School', '=', auth()->user()->fk_Schoolid_School ?? null)
+      ->where('role', '=', 1)
+      ->where('confirmation', '=', 2)
+      ->where('grade', '=', $grade)
+      ->where('fk_Classid_Class', '=', null)
+      ->get();
+  }
+
+
+  function attachToClass($id, $idClass): JsonResponse
+  {
+    try {
+      $classModel = ClassModel::find($idClass);
+      $allLessons = $classModel->getAllLessons();
+      $user = User::find($id);
+
+      if (!empty($allLessons)) {
+        foreach ($allLessons as $lesson) {
+          $lesson->users()->attach($user);
+        }
+      }
+
+      $user->fk_Classid_Class = $idClass;
+      $user->save();
+
+      return response()->json(['message' => 'User successfully attached to class and its lessons'], 200);
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
+    }
+  }
+
+  function detachFromClass($id): JsonResponse
+  {
+    try {
+      $user = User::find($id);
+      $idClass = $user->fk_Classid_Class;
+
+      if ($idClass !== null) {
+        $classModel = ClassModel::find($idClass);
+        $allLessons = $classModel->getAllLessons();
+
+        if (!empty($allLessons)) {
+          foreach ($allLessons as $lesson) {
+            $lesson->users()->detach($user);
+          }
+        }
+
+        $user->fk_Classid_Class = null;
+        $user->save();
+
+        return response()->json(['message' => 'User successfully detached from class and its lessons'], 200);
+      } else {
+        return response()->json(['message' => 'User is not attached to any class'], 422);
+      }
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => 'User detaching failed'], 422);
     }
   }
 

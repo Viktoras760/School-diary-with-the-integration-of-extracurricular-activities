@@ -98,11 +98,24 @@ class LessonService
     {
       if ($this->checkForCrossingTime($lessons, $data, $id)) {
         if ($action == 'store' || $action == 'update') {
-          return response()->json(['error' => 'This time is already occupied by another lesson'], 404);
+          return response()->json(['error' => 'This time is already occupied by another lesson'], 409);
         }
         else if ($action == 'register') {
-          return response()->json(['error' => 'You already have lesson on this time'], 404);
+          return response()->json(['error' => 'You already have lesson on this time'], 409);
         }
+      }
+    }
+    return false;
+  }
+
+  public function activityTimeHandler($data): bool|JsonResponse
+  {
+    $lessons = auth()->user()->lessons()->get();
+
+    if (count($lessons) >= 1)
+    {
+      if ($this->checkForCrossingTime($lessons, $data, -1)) {
+        return response()->json(['error' => 'You already have lesson on this time'], 409);
       }
     }
     return false;
@@ -112,15 +125,15 @@ class LessonService
   {
     $available = collect([]);
     $lessons = Lesson::where('fk_Classroomid_Classroom' ,'=', $classroomId)
-      ->where('lowerGradeLimit', '<=', auth()->user()->grade)
-      ->where('upperGradeLimit', '>=', auth()->user()->grade)
+      ->where('lowerGradeLimit', '<=', (auth()->user()->grade ?? null))
+      ->where('upperGradeLimit', '>=', (auth()->user()->grade ?? null))
       ->where('fk_nonscholasticActivityid_nonscholasticActivity', '!=', NULL)
       ->with(['creator', 'nonscholasticactivity'])
       ->get();
     $userLessons = auth()->user()->lessons()->get();
     if (count($userLessons) > 0) {
       foreach ($lessons as $lesson) {
-        if (!$this->checkForCrossingTime($userLessons, $lesson)) {
+        if (!$this->checkForCrossingTime($userLessons, $lesson, -1)) {
           $available->push($lesson);
         }
       }
@@ -150,6 +163,19 @@ class LessonService
     $data['creatorId'] = ($teacher ?? null);
 
     return Lesson::create($data);
+  }
+
+  public function createCustom($data): Lesson
+  {
+    $data['fk_Classroomid_Classroom'] = 0;
+
+    $data['creatorId'] = (auth()->user()->id_User ?? null);
+
+    $lesson = Lesson::create($data);
+
+    $lesson->users()->attach(auth()->user());
+
+    return $lesson;
   }
 
   private function checkForCrossingTime($lessons, $data, $id)
