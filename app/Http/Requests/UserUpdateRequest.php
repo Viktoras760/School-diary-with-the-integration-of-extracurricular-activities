@@ -34,7 +34,8 @@ class UserUpdateRequest extends FormRequest
       'grade' => 'required|integer|min:0|max:12',
       'fk_Schoolid_School' => 'required',
       'role' => 'required',
-      'confirmation' => 'required'
+      'confirmation' => 'required',
+      'speciality' => 'string'
 
     ];
   }
