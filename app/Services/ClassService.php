@@ -31,11 +31,22 @@ class ClassService
 
   public function classErrorHandler($data)
   {
-    $firstCharAsInt = intval($data['name'][0]);
-    if ($firstCharAsInt != $data['grade']) {
-      return response()->json(['error' => 'Class name does not correspond its grade'], 409);
-    } else return false;
+    if (strlen(strval($data['grade'])) == 2) {
+      $firstTwoChars = substr($data['name'], 0, 2);
+      if ($firstTwoChars != strval($data['grade'])) {
+        return response()->json(['error' => 'Class name does not correspond to its grade'], 409);
+      } else {
+        return false;
+      }
+    } else {
+      $firstCharAsInt = intval($data['name'][0]);
+      if ($firstCharAsInt != $data['grade']) {
+        return response()->json(['error' => 'Class name does not correspond its grade'], 409);
+      } else return false;
+    }
+
   }
+
 
   public function classDeletionErrorHandler($class)
   {
