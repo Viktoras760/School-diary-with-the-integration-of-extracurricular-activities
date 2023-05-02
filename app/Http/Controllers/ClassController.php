@@ -24,20 +24,18 @@ class ClassController extends Controller
 
   function index(): Collection|JsonResponse
   {
-    $class = ClassModel::all()->load('teacher');
-    if (count($class) > 0) {
-      $handler = false;
-    } else {
-      $handler = response()->json(['message' => 'Classes not found'], 404);
-    }
+    $userSchoolId = auth()->user()->fk_Schoolid_School ?? null;
 
-    if (!$handler) {
+    $class = ClassModel::with('teacher')->whereHas('teacher', function ($query) use ($userSchoolId) {
+      $query->where('fk_Schoolid_School', $userSchoolId);
+    })->get();
+
+    if (count($class) > 0) {
       return $class;
     } else {
-      return $handler;
+      return response()->json(['message' => 'Classes not found'], 404);
     }
   }
-
   function store(ClassStoreUpdateRequest $req): JsonResponse|ClassModel
   {
     $data = $req->validated();

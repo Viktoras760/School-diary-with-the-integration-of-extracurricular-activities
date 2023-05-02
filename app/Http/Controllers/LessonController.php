@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LessonStoreUpdateRequest;
+use App\Models\ClassModel;
 use App\Services\LessonService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
@@ -79,6 +80,18 @@ class LessonController extends Controller
   function registerToLesson(Request $req, $idSchool, $idClassroom, $id): JsonResponse|bool
   {
     $teacher = $req->teacher;
+    $classId = $req->class;
+    $class = null;
+    $pupils = null;
+    $pupilLessons = null;
+    if ($classId) {
+      $class = ClassModel::with('users')->find($classId);
+      $pupils = $class->users;
+      $pupil = $class->users->first();
+      if ($pupil) {
+        $pupilLessons = $pupil->lessons()->where('fk_mainLessonsid_mainLessons', '!=', null)->get();
+      }
+    }
     try {
       if ($teacher) {
         $user = User::where('id_User', '=', $teacher)->with('lessons')->get();
@@ -94,24 +107,45 @@ class LessonController extends Controller
         $handle2 = $this->lessonService->lessonGetErrorHandler($idSchool, $idClassroom, $id, 'get');
         if (!$handle && !$handle2 && count($userLessons) > 0) {
           $timeSuitability = $this->lessonService->lessonTimeHandler($lesson->toArray(), $idClassroom, 'register', null);
+          if (!$timeSuitability && $class) {
+            $timeSuitability = $this->lessonService->userLessonTimeHandler($pupilLessons, $lesson->toArray(), 'class');
+          }
         }
 
         if (!$handle && !$handle2 && !$timeSuitability)
         {
           $lesson->users()->attach(auth()->user());
 
+          if ($pupils){
+            foreach($pupils as $pupil) {
+              $lesson->users()->attach($pupil);
+            }
+          }
+
           return response()->json(['success' => 'Successfully registered']);
         } else {
           return $handle ?: $handle2 ?: $timeSuitability;
         }
       } else {
-        if (!$handle && count($userLessons) > 0) {
-          $timeSuitability = $this->lessonService->lessonTimeHandler($lesson->toArray(), $idClassroom, 'register', null);
+        $lesson = Lesson::find($id);
+
+        if (!$handle) {
+          if (count($userLessons) > 0) {
+            $timeSuitability = $this->lessonService->userLessonTimeHandler($userLessons, $lesson->toArray(), 'teacher');
+          } else if (!$timeSuitability && $class && $pupils && $pupilLessons) {
+            $timeSuitability = $this->lessonService->userLessonTimeHandler($pupilLessons, $lesson->toArray(), 'class');
+          }
         }
 
         if (!$handle && !$timeSuitability)
         {
-          $lesson->users()->attach(auth()->user());
+          $lesson->users()->attach($user);
+
+          if ($pupils){
+            foreach($pupils as $pupil) {
+              $lesson->users()->attach($pupil);
+            }
+          }
 
           return response()->json(['success' => 'Successfully registered']);
         } else {
@@ -137,7 +171,15 @@ class LessonController extends Controller
 
         return response()->json(['success' => 'Lesson deleted']);
       }
-      else {
+      else if (is_int($exists)) {
+        foreach ($lesson->userLessons as $userLesson) {
+          $userLesson->delete();
+        }
+
+        $lesson->delete();
+
+        return response()->json(['success' => 'Lesson deleted']);
+      } else {
         return $handle ?: $exists;
       }
     } catch (QueryException $e) {
