@@ -31,6 +31,9 @@ class ClassService
 
   public function classErrorHandler($data)
   {
+    $schoolId = auth()->user()->fk_Schoolid_School ?? null;
+
+
     if (strlen(strval($data['grade'])) == 2) {
       $firstTwoChars = substr($data['name'], 0, 2);
       if ($firstTwoChars != strval($data['grade'])) {
