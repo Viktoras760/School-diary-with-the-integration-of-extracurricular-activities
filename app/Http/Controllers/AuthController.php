@@ -114,7 +114,7 @@ class AuthController extends Controller
       ]);
     }
 
-    $user = auth()->user()->load(['role1', 'confirmation', 'school', 'class1']);
+    $user = auth()->user()->load(['role1', 'confirmation', 'school', 'class1', 'userLessons']);
     $expiresIn = auth()->factory()->getTTL() * 60;
 
     return response()->json([
@@ -194,6 +194,6 @@ class AuthController extends Controller
      */
     public function me(): JsonResponse
     {
-      return response()->json(auth()->user()->load(['role1', 'confirmation', 'school', 'class1']));
+      return response()->json(auth()->user()->load(['role1', 'confirmation', 'school', 'class1', 'userLessons']));
     }
 }

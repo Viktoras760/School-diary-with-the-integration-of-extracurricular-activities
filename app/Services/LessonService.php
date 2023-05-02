@@ -47,7 +47,7 @@ class LessonService
     else if (!$lesson) {
       return response()->json(['error' => 'Lesson not found'], 404);
     }
-    else if ($action == 'get' && $role == 'Pupil' && ((auth()->user()->grade ?? null) < $lesson->lowerGradeLimit) || ($lesson->upperGradeLimit < (auth()->user()->grade ?? null))) {
+    else if ($action == 'get' && $role == 'Pupil' && (((auth()->user()->grade ?? null) < $lesson->lowerGradeLimit) || ($lesson->upperGradeLimit < (auth()->user()->grade ?? null)))) {
       return response()->json([
         'status' => 'error',
         'message' => 'Lesson is not suitable for your grade',
@@ -102,6 +102,21 @@ class LessonService
         }
         else if ($action == 'register') {
           return response()->json(['error' => 'You already have lesson on this time'], 409);
+        }
+      }
+    }
+    return false;
+  }
+
+  public function userLessonTimeHandler($lessons, $data, $target): bool|JsonResponse
+  {
+    if (count($lessons) >= 1)
+    {
+      if ($this->checkForCrossingTime($lessons, $data, null)) {
+        if ($target === 'teacher') {
+          return response()->json(['error' => 'Teacher already has lesson on this time'], 409);
+        } else if ($target === 'class') {
+          return response()->json(['error' => 'Class already has lesson on this time'], 409);
         }
       }
     }
@@ -241,9 +256,11 @@ class LessonService
       ], 401);
     }
 
-    else if (count($lessonUsers))
+    else if (count($lessonUsers) && ($role == 'Teacher'))
     {
       return response()->json(['error' => 'Lesson has users registered'], 404);
+    } else if (count($lessonUsers)) {
+      return 1;
     }
     return false;
   }
