@@ -33,8 +33,14 @@ class ClassService
   {
     $schoolId = auth()->user()->fk_Schoolid_School ?? null;
 
+    $users = User::where('fk_Schoolid_School', '=', $schoolId)->get();
 
-    if (strlen(strval($data['grade'])) == 2) {
+    $classNames = $users->pluck('class1.name')->unique()->pluck('name')->toArray();
+
+    if (in_array($data['name'], $classNames)) {
+      return response()->json(['error' => 'Class with such name already exists in this school'], 409);
+    }
+    else if (strlen(strval($data['grade'])) == 2) {
       $firstTwoChars = substr($data['name'], 0, 2);
       if ($firstTwoChars != strval($data['grade'])) {
         return response()->json(['error' => 'Class name does not correspond to its grade'], 409);
@@ -47,7 +53,6 @@ class ClassService
         return response()->json(['error' => 'Class name does not correspond its grade'], 409);
       } else return false;
     }
-
   }
 
 
