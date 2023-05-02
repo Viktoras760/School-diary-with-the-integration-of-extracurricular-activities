@@ -59,7 +59,9 @@ Route::group([
     'middleware' => 'api'
 ], function ($router) {
   Route::post('schools/{idSchool}/classrooms/{idClassroom}/lessons/{id}', [LessonController::class, 'registerToLesson']);
+  Route::post('schools/{idSchool}/classrooms/{idClassroom}/lessons/{id}/course', [LessonController::class, 'registerToCourse']);
   Route::delete('user_lessons/{id}', [LessonController::class, 'unregisterFromLesson']);
+  Route::delete('classroom/{idClassroom}/user_lessons/{id}/course', [LessonController::class, 'unregisterFromCourse']);
   Route::get('user_lessons/', [LessonController::class, 'getUserLessons']);
   Route::get('teacher_lessons/', [LessonController::class, 'getTeachersLessons']);
   Route::post('custom_lessons/', [LessonController::class, 'addCustomActivity']);

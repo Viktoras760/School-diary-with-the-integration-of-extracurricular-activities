@@ -158,6 +158,61 @@ class LessonController extends Controller
     }
   }
 
+  function registerToCourse($idSchool, $idClassroom, $id): JsonResponse|bool
+  {
+    try
+    {
+      $userLessons = auth()->user()->lessons()->get();
+
+      $lesson = Lesson::find($id);
+      $courseLessons = Lesson::where('fk_Classroomid_Classroom', '=', $idClassroom)->where('lessonName', '=', $lesson->lessonName)->where('creatorId', '=', $lesson->creatorId)->where('lowerGradeLimit', '=', $lesson->lowerGradeLimit)->where('type', '=', $lesson->type)->get();
+      $timeSuitability = false;
+
+      $handle = $this->lessonService->lessonErrorHandler($idSchool, $idClassroom);
+      $handle2 = $this->lessonService->lessonGetErrorHandler($idSchool, $idClassroom, $id, 'get');
+      if (!$handle && !$handle2 && count($userLessons) > 0) {
+        foreach ($courseLessons as $lesson1) {
+          $timeSuitability = $this->lessonService->lessonTimeHandler($lesson1->toArray(), $idClassroom, 'register', null);
+          if ($timeSuitability) {
+            return $timeSuitability;
+          }
+        }
+      }
+      if (!$handle && !$handle2 && !$timeSuitability)
+      {
+        foreach ($courseLessons as $lesson2) {
+          $lesson2->users()->attach(auth()->user());
+        }
+        return response()->json(['success' => 'Successfully registered']);
+      } else {
+        return $handle ?: $handle2 ?: $timeSuitability;
+      }
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => 'Register to course failed'], 422);
+    }
+  }
+
+  function unregisterFromCourse($idClassroom, $id): JsonResponse
+  {
+    try {
+      $lesson = Lesson::find($id);
+      $courseLessons = Lesson::where('fk_Classroomid_Classroom', '=', $idClassroom)->where('lessonName', '=', $lesson->lessonName)->where('creatorId', '=', $lesson->creatorId)->where('lowerGradeLimit', '=', $lesson->lowerGradeLimit)->where('type', '=', $lesson->type)->get();
+
+
+      if ($courseLessons) {
+        foreach ($courseLessons as $lesson2) {
+          $lesson2->users()->detach(auth()->user());
+        }
+      } else {
+        return response()->json(['error' => 'Lesson course not found'], 404);
+      }
+
+      return response()->json(['success' => 'Successfully unregistered']);
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => 'Unregister failed'], 422);
+    }
+  }
+
   function destroy($idSchool, $idClassroom, $id): JsonResponse|bool
   {
     try {
