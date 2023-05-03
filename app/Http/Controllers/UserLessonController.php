@@ -35,10 +35,8 @@ class UserLessonController extends Controller
         $userLesson->mark = $user['marks'];
         $userLesson->comment = $user['comment'];
         $userLesson->save();
-
-        return response()->json(['success' => 'Lesson successfully updated']);
       }
     }
-    return response()->json(['error' => 'Lesson editing was failed']);
+    return response()->json(['success' => 'Lesson successfully updated']);
   }
 }
