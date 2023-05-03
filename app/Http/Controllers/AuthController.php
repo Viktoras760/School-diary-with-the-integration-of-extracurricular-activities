@@ -139,12 +139,14 @@ class AuthController extends Controller
         }
 
         if ($request->cv && $request->cv != 'undefined') {
+
+          $filePath = $request->cv->store('public/cv');
           User::create([
             'name' => $request->name,
             'surname' => $request->surname,
             'personalCode' => $request->personalCode,
             'email' => $request->email,
-            'cv' => $request->cv,
+            'cv' => $filePath,
             'speciality' => 'extra',
             'role' => 2,
             'password' => Hash::make($request->password),
