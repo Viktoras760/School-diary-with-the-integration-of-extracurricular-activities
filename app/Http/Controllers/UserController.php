@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Lesson;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -132,19 +133,17 @@ class UserController extends Controller
     }
   }
 
-  function getUserCV($id): StreamedResponse|JsonResponse
+  function getUserCV($id)
   {
     try {
       $user = User::find($id);
-      $pdfData = $user->cv;
+      $filePath = $user->cv;
 
-      $headers = [
-        'Content-Type' => 'application/pdf',
-      ];
-
-      return response()->streamDownload(function () use ($pdfData) {
-        echo $pdfData;
-      }, $headers);
+      if ($filePath && Storage::exists($filePath)) {
+        return Storage::download($filePath, 'user_cv.pdf');
+      } else {
+        return response()->json(['error' => 'File not found', 'message' => trans('global.failed')], 404);
+      }
     } catch (QueryException $e) {
       return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }

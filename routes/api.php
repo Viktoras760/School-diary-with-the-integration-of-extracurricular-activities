@@ -34,7 +34,7 @@ Route::group([
 ], function ($router) {
   Route::get('school_users/', [UserController::class, 'getSchoolUsers']);
   Route::get('school_teachers/', [UserController::class, 'getSchoolTeachers']);
-  Route::get('users/{id}/CV', [UserController::class, 'getUserCV']);
+  Route::get('users/{id}/cv', [UserController::class, 'getUserCV']);
   Route::get('free_pupils/{grade}', [UserController::class, 'getFreePupils']);
   Route::put('user/{id}/class/{idClass}', [UserController::class, 'attachToClass']);
   Route::put('user/{id}/', [UserController::class, 'detachFromClass']);
