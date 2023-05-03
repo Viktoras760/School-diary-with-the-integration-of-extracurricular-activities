@@ -314,4 +314,12 @@ class LessonService
     }
     return false;
   }
+
+  public function lessonUsersErrorHandler($id) {
+      $lesson = Lesson::find($id);
+      if (count($lesson->users()->get()) < 1) {
+          return response()->json(['error' => 'Lesson has no users'], 404);
+      }
+      return false;
+  }
 }

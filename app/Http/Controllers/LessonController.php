@@ -293,6 +293,20 @@ class LessonController extends Controller
     }
   }
 
+  function getLessonUsers($id)
+  {
+    try {
+      $handle = $this->lessonService->lessonUsersErrorHandler($id);
+      if (!$handle) {
+        $lessonUsers = Lesson::with('userLessons', 'users')->find($id);
+      } else return $handle;
+
+      return $lessonUsers;
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => 'Lesson has no users'], 422);
+    }
+  }
+
   function index($schoolId, $classroomId, Request $req): Collection|JsonResponse|array
   {
     $date = $req->date;
