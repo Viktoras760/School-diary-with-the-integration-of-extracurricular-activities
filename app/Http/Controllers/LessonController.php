@@ -365,4 +365,42 @@ class LessonController extends Controller
     }
 
   }
+
+  function getUserLessonsCustom(Request $request) {
+    $startDate = $request->startDate;
+    $endDate = $request->endDate;
+    $all = $request->all;
+    $userId = auth()->user()->id_User ?? null;
+
+    try {
+      $handle = $this->lessonService->userLessonsErrorHandler();
+      if (!$handle) {
+        if ($all) {
+          $userLessons = User::find($userId)
+            ->lessons()
+            ->whereBetween('lessonsStartingTime', [$startDate, $endDate])
+            ->where('type', '!=', 3)
+            ->orderBy('lessonsStartingTime', 'asc')
+            ->with(['classroom', 'userLessons' => function ($query) use ($userId) {
+              $query->where('fk_Userid_User', $userId);
+            }])
+            ->get();
+        } else {
+          $userLessons = User::find($userId)
+            ->lessons()
+            ->whereBetween('lessonsStartingTime', [$startDate, $endDate])
+            ->where('type', '=', 1)
+            ->orderBy('lessonsStartingTime', 'asc')
+            ->with(['classroom', 'userLessons' => function ($query) use ($userId) {
+              $query->where('fk_Userid_User', $userId);
+            }])
+            ->get();
+        }
+      } else return $handle;
+
+      return $userLessons;
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
+    }
+  }
 }

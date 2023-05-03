@@ -39,5 +39,6 @@ class UserLessonController extends Controller
         return response()->json(['success' => 'Lesson successfully updated']);
       }
     }
+    return response()->json(['error' => 'Lesson editing was failed']);
   }
 }
