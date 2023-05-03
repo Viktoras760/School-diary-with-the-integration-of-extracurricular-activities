@@ -138,7 +138,7 @@ class AuthController extends Controller
             return response()->json(['errors' => $validator->errors()], 401);
         }
 
-        if ($request->cv) {
+        if ($request->cv && $request->cv != 'undefined') {
           User::create([
             'name' => $request->name,
             'surname' => $request->surname,
