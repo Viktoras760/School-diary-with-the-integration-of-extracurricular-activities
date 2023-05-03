@@ -3,6 +3,7 @@
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\MainLessonsController;
 use App\Http\Controllers\NonscholasticactivityController;
+use App\Http\Controllers\UserLessonController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -59,8 +60,12 @@ Route::group([
     'middleware' => 'api'
 ], function ($router) {
   Route::post('schools/{idSchool}/classrooms/{idClassroom}/lessons/{id}', [LessonController::class, 'registerToLesson']);
+  Route::post('schools/{idSchool}/classrooms/{idClassroom}/lessons/{id}/course', [LessonController::class, 'registerToCourse']);
   Route::delete('user_lessons/{id}', [LessonController::class, 'unregisterFromLesson']);
+  Route::delete('classroom/{idClassroom}/user_lessons/{id}/course', [LessonController::class, 'unregisterFromCourse']);
   Route::get('user_lessons/', [LessonController::class, 'getUserLessons']);
+  Route::get('user_lessons/custom', [LessonController::class, 'getUserLessonsCustom']);
+  Route::get('lesson_users/{id}', [LessonController::class, 'getLessonUsers']);
   Route::get('teacher_lessons/', [LessonController::class, 'getTeachersLessons']);
   Route::post('custom_lessons/', [LessonController::class, 'addCustomActivity']);
   $router->apiResource('schools/{idSchool}/classrooms/{idClassroom}/lessons', LessonController::class);
@@ -97,4 +102,11 @@ Route::group([
   'middleware' => 'api',
 ], function ($router) {
   $router->apiResource('class', ClassController::class);
+});
+
+//UserLesson
+Route::group([
+  'middleware' => 'api',
+], function ($router) {
+  Route::put('/lesson/{id}/users/', [UserLessonController::class, 'EvaluateUsers']);
 });

@@ -158,6 +158,61 @@ class LessonController extends Controller
     }
   }
 
+  function registerToCourse($idSchool, $idClassroom, $id): JsonResponse|bool
+  {
+    try
+    {
+      $userLessons = auth()->user()->lessons()->get();
+
+      $lesson = Lesson::find($id);
+      $courseLessons = Lesson::where('fk_Classroomid_Classroom', '=', $idClassroom)->where('lessonName', '=', $lesson->lessonName)->where('creatorId', '=', $lesson->creatorId)->where('lowerGradeLimit', '=', $lesson->lowerGradeLimit)->where('type', '=', $lesson->type)->get();
+      $timeSuitability = false;
+
+      $handle = $this->lessonService->lessonErrorHandler($idSchool, $idClassroom);
+      $handle2 = $this->lessonService->lessonGetErrorHandler($idSchool, $idClassroom, $id, 'get');
+      if (!$handle && !$handle2 && count($userLessons) > 0) {
+        foreach ($courseLessons as $lesson1) {
+          $timeSuitability = $this->lessonService->lessonTimeHandler($lesson1->toArray(), $idClassroom, 'register', null);
+          if ($timeSuitability) {
+            return $timeSuitability;
+          }
+        }
+      }
+      if (!$handle && !$handle2 && !$timeSuitability)
+      {
+        foreach ($courseLessons as $lesson2) {
+          $lesson2->users()->attach(auth()->user());
+        }
+        return response()->json(['success' => 'Successfully registered']);
+      } else {
+        return $handle ?: $handle2 ?: $timeSuitability;
+      }
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => 'Register to course failed'], 422);
+    }
+  }
+
+  function unregisterFromCourse($idClassroom, $id): JsonResponse
+  {
+    try {
+      $lesson = Lesson::find($id);
+      $courseLessons = Lesson::where('fk_Classroomid_Classroom', '=', $idClassroom)->where('lessonName', '=', $lesson->lessonName)->where('creatorId', '=', $lesson->creatorId)->where('lowerGradeLimit', '=', $lesson->lowerGradeLimit)->where('type', '=', $lesson->type)->get();
+
+
+      if ($courseLessons) {
+        foreach ($courseLessons as $lesson2) {
+          $lesson2->users()->detach(auth()->user());
+        }
+      } else {
+        return response()->json(['error' => 'Lesson course not found'], 404);
+      }
+
+      return response()->json(['success' => 'Successfully unregistered']);
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => 'Unregister failed'], 422);
+    }
+  }
+
   function destroy($idSchool, $idClassroom, $id): JsonResponse|bool
   {
     try {
@@ -238,6 +293,20 @@ class LessonController extends Controller
     }
   }
 
+  function getLessonUsers($id)
+  {
+    try {
+      $handle = $this->lessonService->lessonUsersErrorHandler($id);
+      if (!$handle) {
+        $lessonUsers = Lesson::with('userLessons', 'users')->find($id);
+      } else return $handle;
+
+      return $lessonUsers;
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => 'Lesson has no users'], 422);
+    }
+  }
+
   function index($schoolId, $classroomId, Request $req): Collection|JsonResponse|array
   {
     $date = $req->date;
@@ -295,5 +364,43 @@ class LessonController extends Controller
       return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }
 
+  }
+
+  function getUserLessonsCustom(Request $request) {
+    $startDate = $request->startDate;
+    $endDate = $request->endDate;
+    $all = $request->all;
+    $userId = auth()->user()->id_User ?? null;
+
+    try {
+      $handle = $this->lessonService->userLessonsErrorHandler();
+      if (!$handle) {
+        if ($all) {
+          $userLessons = User::find($userId)
+            ->lessons()
+            ->whereBetween('lessonsStartingTime', [$startDate, $endDate])
+            ->where('type', '!=', 3)
+            ->orderBy('lessonsStartingTime', 'asc')
+            ->with(['classroom', 'userLessons' => function ($query) use ($userId) {
+              $query->where('fk_Userid_User', $userId);
+            }])
+            ->get();
+        } else {
+          $userLessons = User::find($userId)
+            ->lessons()
+            ->whereBetween('lessonsStartingTime', [$startDate, $endDate])
+            ->where('type', '=', 1)
+            ->orderBy('lessonsStartingTime', 'asc')
+            ->with(['classroom', 'userLessons' => function ($query) use ($userId) {
+              $query->where('fk_Userid_User', $userId);
+            }])
+            ->get();
+        }
+      } else return $handle;
+
+      return $userLessons;
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
+    }
   }
 }
