@@ -403,4 +403,12 @@ class LessonController extends Controller
       return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }
   }
+
+  function getLesson($id) {
+    $lesson = Lesson::find($id);
+
+    if (!$lesson) {
+      return response()->json(['error' => 'There are no lessons'], 404);
+    } else return $lesson;
+  }
 }

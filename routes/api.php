@@ -68,6 +68,7 @@ Route::group([
   Route::get('lesson_users/{id}', [LessonController::class, 'getLessonUsers']);
   Route::get('teacher_lessons/', [LessonController::class, 'getTeachersLessons']);
   Route::post('custom_lessons/', [LessonController::class, 'addCustomActivity']);
+  Route::get('lesson/{id}', [LessonController::class, 'getLesson']);
   $router->apiResource('schools/{idSchool}/classrooms/{idClassroom}/lessons', LessonController::class);
 });
 
