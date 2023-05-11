@@ -381,7 +381,7 @@ class LessonController extends Controller
             ->whereBetween('lessonsStartingTime', [$startDate, $endDate])
             ->where('type', '!=', 3)
             ->orderBy('lessonsStartingTime', 'asc')
-            ->with(['classroom', 'userLessons' => function ($query) use ($userId) {
+            ->with(['classroom', 'mainLessons', 'userLessons' => function ($query) use ($userId) {
               $query->where('fk_Userid_User', $userId);
             }])
             ->get();
@@ -391,7 +391,7 @@ class LessonController extends Controller
             ->whereBetween('lessonsStartingTime', [$startDate, $endDate])
             ->where('type', '=', 1)
             ->orderBy('lessonsStartingTime', 'asc')
-            ->with(['classroom', 'userLessons' => function ($query) use ($userId) {
+            ->with(['classroom', 'mainLessons', 'userLessons' => function ($query) use ($userId) {
               $query->where('fk_Userid_User', $userId);
             }])
             ->get();
