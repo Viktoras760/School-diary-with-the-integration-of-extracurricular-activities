@@ -15,6 +15,7 @@ use App\Models\School;
 use App\Models\Classroom;
 use Illuminate\Support\Carbon;
 use App\Http\Controllers\AuthController;
+use Illuminate\Validation\ValidationException;
 
 class LessonController extends Controller
 {
@@ -410,5 +411,43 @@ class LessonController extends Controller
     if (!$lesson) {
       return response()->json(['error' => 'There are no lessons'], 404);
     } else return $lesson;
+  }
+
+  public function getSubjects(Request $request) {
+    if (!auth()->check()) {
+      return response()->json(['error' => 'Unauthenticated'], 401);
+    }
+
+    $user = auth()->user();
+
+    try {
+      $validated = $request->validate([
+        'startDate' => 'required|date',
+        'endDate' => 'required|date',
+      ]);
+    } catch (ValidationException $e) {
+      return response()->json(['error' => 'Invalid or missing parameters'], 400);
+    }
+
+    $startDate = $validated['startDate'];
+    $endDate = $validated['endDate'];
+
+    $lessons = Lesson::where('creatorId', '=', $user->id_User ?? null)
+      ->where('fk_mainLessonsid_mainLessons', '!=', null)
+      ->whereBetween('lessonsStartingTime', [$startDate, $endDate])
+      ->whereBetween('lessonsEndingTime', [$startDate, $endDate])
+      ->with('mainLessons.classModel') // Eager load the classModel relation
+      ->get();
+
+    if ($lessons->isEmpty()) {
+      return response()->json(['error' => 'You have no subjects'], 404);
+    }
+    $mainLessons = $lessons->map(function ($lesson) {
+      if ($lesson->mainLessons) {
+        return $lesson->mainLessons;
+      }
+    })->unique('id_mainLessons');
+
+    return $mainLessons;
   }
 }
