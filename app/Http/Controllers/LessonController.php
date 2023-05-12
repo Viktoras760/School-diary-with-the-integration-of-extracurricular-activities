@@ -447,4 +447,19 @@ class LessonController extends Controller
 
     return $mainLessons;
   }
+
+  function getExtracurricular()
+  {
+    try {
+      $classrooms = Classroom::where('fk_Schoolid_School', '=', auth()->user()->fk_Schoolid_School ?? null)->get();
+
+      $lessons = Lesson::whereNotNull('fk_nonscholasticActivityid_nonscholasticActivity')
+        ->whereIn('fk_Classroomid_Classroom', $classrooms->pluck('id_Classroom'))->with('classroom')
+        ->get();
+
+      return $lessons;
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
+    }
+  }
 }

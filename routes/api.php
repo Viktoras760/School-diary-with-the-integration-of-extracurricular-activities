@@ -64,6 +64,7 @@ Route::group([
   Route::delete('user_lessons/{id}', [LessonController::class, 'unregisterFromLesson']);
   Route::delete('classroom/{idClassroom}/user_lessons/{id}/course', [LessonController::class, 'unregisterFromCourse']);
   Route::get('user_lessons/', [LessonController::class, 'getUserLessons']);
+  Route::get('extracurricular/', [LessonController::class, 'getExtracurricular']);
   Route::get('user_lessons/custom', [LessonController::class, 'getUserLessonsCustom']);
   Route::get('lesson_users/{id}', [LessonController::class, 'getLessonUsers']);
   Route::get('teacher_lessons/', [LessonController::class, 'getTeachersLessons']);
