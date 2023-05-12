@@ -89,6 +89,7 @@ Route::group([
 Route::group([
   'middleware' => 'api',
 ], function ($router) {
+  Route::get('subject_marks/{id}', [MainLessonsController::class, 'getSubjectMarks']);
   $router->apiResource('mainlessons', MainLessonsController::class);
 });
 

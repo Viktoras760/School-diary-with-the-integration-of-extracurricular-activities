@@ -439,9 +439,6 @@ class LessonController extends Controller
       ->with('mainLessons.classModel') // Eager load the classModel relation
       ->get();
 
-    if ($lessons->isEmpty()) {
-      return response()->json(['error' => 'You have no subjects'], 404);
-    }
     $mainLessons = $lessons->map(function ($lesson) {
       if ($lesson->mainLessons) {
         return $lesson->mainLessons;
