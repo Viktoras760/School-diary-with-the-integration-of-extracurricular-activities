@@ -64,10 +64,13 @@ Route::group([
   Route::delete('user_lessons/{id}', [LessonController::class, 'unregisterFromLesson']);
   Route::delete('classroom/{idClassroom}/user_lessons/{id}/course', [LessonController::class, 'unregisterFromCourse']);
   Route::get('user_lessons/', [LessonController::class, 'getUserLessons']);
+  Route::get('extracurricular/', [LessonController::class, 'getExtracurricular']);
   Route::get('user_lessons/custom', [LessonController::class, 'getUserLessonsCustom']);
   Route::get('lesson_users/{id}', [LessonController::class, 'getLessonUsers']);
   Route::get('teacher_lessons/', [LessonController::class, 'getTeachersLessons']);
   Route::post('custom_lessons/', [LessonController::class, 'addCustomActivity']);
+  Route::get('lesson/{id}', [LessonController::class, 'getLesson']);
+  Route::get('subjects', [LessonController::class, 'getSubjects']);
   $router->apiResource('schools/{idSchool}/classrooms/{idClassroom}/lessons', LessonController::class);
 });
 
@@ -87,6 +90,7 @@ Route::group([
 Route::group([
   'middleware' => 'api',
 ], function ($router) {
+  Route::get('subject_marks/{id}', [MainLessonsController::class, 'getSubjectMarks']);
   $router->apiResource('mainlessons', MainLessonsController::class);
 });
 

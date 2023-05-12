@@ -15,6 +15,7 @@ use App\Models\School;
 use App\Models\Classroom;
 use Illuminate\Support\Carbon;
 use App\Http\Controllers\AuthController;
+use Illuminate\Validation\ValidationException;
 
 class LessonController extends Controller
 {
@@ -381,7 +382,7 @@ class LessonController extends Controller
             ->whereBetween('lessonsStartingTime', [$startDate, $endDate])
             ->where('type', '!=', 3)
             ->orderBy('lessonsStartingTime', 'asc')
-            ->with(['classroom', 'userLessons' => function ($query) use ($userId) {
+            ->with(['classroom', 'mainLessons', 'userLessons' => function ($query) use ($userId) {
               $query->where('fk_Userid_User', $userId);
             }])
             ->get();
@@ -391,7 +392,7 @@ class LessonController extends Controller
             ->whereBetween('lessonsStartingTime', [$startDate, $endDate])
             ->where('type', '=', 1)
             ->orderBy('lessonsStartingTime', 'asc')
-            ->with(['classroom', 'userLessons' => function ($query) use ($userId) {
+            ->with(['classroom', 'mainLessons', 'userLessons' => function ($query) use ($userId) {
               $query->where('fk_Userid_User', $userId);
             }])
             ->get();
@@ -399,6 +400,64 @@ class LessonController extends Controller
       } else return $handle;
 
       return $userLessons;
+    } catch (QueryException $e) {
+      return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
+    }
+  }
+
+  function getLesson($id) {
+    $lesson = Lesson::find($id);
+
+    if (!$lesson) {
+      return response()->json(['error' => 'There are no lessons'], 404);
+    } else return $lesson;
+  }
+
+  public function getSubjects(Request $request) {
+    if (!auth()->check()) {
+      return response()->json(['error' => 'Unauthenticated'], 401);
+    }
+
+    $user = auth()->user();
+
+    try {
+      $validated = $request->validate([
+        'startDate' => 'required|date',
+        'endDate' => 'required|date',
+      ]);
+    } catch (ValidationException $e) {
+      return response()->json(['error' => 'Invalid or missing parameters'], 400);
+    }
+
+    $startDate = $validated['startDate'];
+    $endDate = $validated['endDate'];
+
+    $lessons = Lesson::where('creatorId', '=', $user->id_User ?? null)
+      ->where('fk_mainLessonsid_mainLessons', '!=', null)
+      ->whereBetween('lessonsStartingTime', [$startDate, $endDate])
+      ->whereBetween('lessonsEndingTime', [$startDate, $endDate])
+      ->with('mainLessons.classModel') // Eager load the classModel relation
+      ->get();
+
+    $mainLessons = $lessons->map(function ($lesson) {
+      if ($lesson->mainLessons) {
+        return $lesson->mainLessons;
+      }
+    })->unique('id_mainLessons');
+
+    return $mainLessons;
+  }
+
+  function getExtracurricular()
+  {
+    try {
+      $classrooms = Classroom::where('fk_Schoolid_School', '=', auth()->user()->fk_Schoolid_School ?? null)->get();
+
+      $lessons = Lesson::whereNotNull('fk_nonscholasticActivityid_nonscholasticActivity')
+        ->whereIn('fk_Classroomid_Classroom', $classrooms->pluck('id_Classroom'))->with('classroom')
+        ->get();
+
+      return $lessons;
     } catch (QueryException $e) {
       return response()->json(['error' => $e->getMessage(), 'message' => trans('global.failed')], 422);
     }

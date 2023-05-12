@@ -78,4 +78,33 @@ class ClassController extends Controller
 
     return $class;
   }
+
+  function update($id)
+  {
+    $class = ClassModel::with(['users'])->find($id);
+
+    $class->grade += 1;
+    $class->name = $this->updateClassName($class->name, $class->grade);
+    $class->save();
+
+    foreach ($class->users as $user) {
+      if ($user->role != 2) {
+        $user->grade += 1;
+        $user->save();
+      }
+    }
+
+    return $class;
+  }
+  function updateClassName($className, $newGrade): string
+  {
+    $matches = [];
+    preg_match('/(\d+)(\D+)/', $className, $matches);
+    $oldGrade = $matches[1];
+    $letter = $matches[2];
+
+    $updatedClassName = ($newGrade . $letter);
+
+    return $updatedClassName;
+  }
 }
