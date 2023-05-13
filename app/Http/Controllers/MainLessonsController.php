@@ -110,23 +110,25 @@ class MainLessonsController extends Controller
         ])
         ->get();
 
-      $transformedData = [];
-      foreach($userMarks as $lesson) {
-        foreach($lesson->userLessons as $userLesson) {
-          $user = $userLesson->user;
-          $fullName = $user->name . ' ' . $user->surname;
-          if(!isset($transformedData[$fullName])) {
-            $transformedData[$fullName] = [];
-          }
-          if($userLesson->mark !== null) {
-            $transformedData[$fullName][$lesson->id_Lesson] = $userLesson->mark;
-          }
-        }
-      }
-
-      return $transformedData;
+      return $this->TransformData($userMarks);
     } else {
       return response()->json(['message' => 'Subject not found'], 404);
     }
+  }
+  function TransformData($userMarks) {
+    $transformedData = [];
+    foreach($userMarks as $lesson) {
+      foreach($lesson->userLessons as $userLesson) {
+        $user = $userLesson->user;
+        $fullName = $user->name . ' ' . $user->surname;
+        if(!isset($transformedData[$fullName])) {
+          $transformedData[$fullName] = [];
+        }
+        if($userLesson->mark !== null) {
+          $transformedData[$fullName][$lesson->id_Lesson] = $userLesson->mark;
+        }
+      }
+    }
+    return $transformedData;
   }
 }
