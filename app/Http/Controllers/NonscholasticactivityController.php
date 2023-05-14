@@ -71,6 +71,4 @@ class NonscholasticactivityController extends Controller
       return response()->json(['error' => $e->getMessage(), 'message' => 'Activity deletion failed'], 422);
     }
   }
-
-
 }
