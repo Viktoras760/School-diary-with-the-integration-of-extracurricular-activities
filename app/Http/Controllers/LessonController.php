@@ -409,7 +409,7 @@ class LessonController extends Controller
     $lesson = Lesson::find($id);
 
     if (!$lesson) {
-      return response()->json(['error' => 'There are no lessons'], 404);
+      return response()->json(['error' => 'Lesson was not found'], 404);
     } else return $lesson;
   }
 
@@ -436,7 +436,7 @@ class LessonController extends Controller
       ->where('fk_mainLessonsid_mainLessons', '!=', null)
       ->whereBetween('lessonsStartingTime', [$startDate, $endDate])
       ->whereBetween('lessonsEndingTime', [$startDate, $endDate])
-      ->with('mainLessons.classModel') // Eager load the classModel relation
+      ->with('mainLessons.classModel')
       ->get();
 
     $mainLessons = $lessons->map(function ($lesson) {

@@ -118,6 +118,7 @@ class LessonService
         } else if ($target === 'class') {
           return response()->json(['error' => 'Class already has lesson on this time'], 409);
         }
+        else return response()->json(['error' => 'You already have lesson on this time'], 409);
       }
     }
     return false;
